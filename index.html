@@ -3,240 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مطعم نجف - طلب أونلاين</title>
+    <title>مطعم نجف - Nagaf</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- خط عربي احترافي -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root { 
-            --blue: #1a237e; /* أزرق غامق زي الصورة */
-            --red: #9e0000;  /* أحمر غامق زي الصورة */
+            --blue: #1a237e; 
+            --red: #b71c1c;  
             --white: #ffffff; 
-            --gray: #f5f5f5; 
-            --text-color: #333;
+            --bg-gray: #f4f6f8; 
+            --text: #333;
         }
         
-        * { box-sizing: border-box; outline: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Cairo', sans-serif; 
             margin: 0; 
-            background: var(--gray); 
-            padding-bottom: 80px; /* مسافة للشات والسلة */
+            background: var(--bg-gray); 
+            padding-bottom: 90px;
         }
 
-        /* --- الهيدر --- */
+        /* --- الهيدر المحسن --- */
         header { 
-            background: linear-gradient(to left, var(--blue), #283593); 
+            background: var(--blue);
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
             color: var(--white); 
-            padding: 10px 15px; 
+            padding: 12px 15px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             position: sticky; 
             top: 0; 
             z-index: 1000; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
         }
-        .logo { font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .logo i { font-size: 1.3rem; }
         
-        .user-controls { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { position: relative; cursor: pointer; font-size: 1.2rem; }
+        .user-controls { display: flex; gap: 18px; align-items: center; }
+        .icon-wrap { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .icon-wrap i { font-size: 1.3rem; }
         .badge { 
             position: absolute; top: -8px; right: -8px; 
             background: var(--red); color: white; 
-            border-radius: 50%; padding: 2px 5px; 
-            font-size: 0.7rem; font-weight: bold; border: 1px solid white;
+            border-radius: 50%; width: 18px; height: 18px;
+            font-size: 0.7rem; font-weight: bold; 
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--blue);
         }
 
-        /* --- البانر (Hero) --- */
+        /* --- بروفايل صغير في الهيدر --- */
+        .header-profile {
+            display: flex; align-items: center; gap: 5px; 
+            background: rgba(255,255,255,0.15); 
+            padding: 4px 10px; border-radius: 20px; 
+            font-size: 0.85rem; cursor: pointer;
+        }
+
+        /* --- البانر --- */
         .hero { 
-            background: linear-gradient(rgba(26, 35, 126, 0.7), rgba(158, 0, 0, 0.7)), url('https://source.unsplash.com/800x400/?food,restaurant') center/cover;
-            height: 180px; 
+            background: linear-gradient(rgba(26, 35, 126, 0.8), rgba(183, 28, 28, 0.6)), url('https://source.unsplash.com/800x600/?egyptian-food') center/cover;
+            height: 160px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             text-align: center; 
             color: white; 
-            margin-bottom: 15px;
+            border-radius: 0 0 25px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .hero h1 { font-size: 1.8rem; margin: 0; text-shadow: 1px 1px 3px black; }
-        .hero p { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+        .hero h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
+        .hero p { font-size: 0.9rem; opacity: 0.95; margin-top: 5px; }
 
-        /* --- التصنيفات (Categories) --- */
+        /* --- القوائم (تصميم الكبسولة) --- */
         .category-nav { 
             display: flex; 
             overflow-x: auto; 
-            padding: 10px; 
-            gap: 10px; 
-            background: white; 
-            white-space: nowrap; 
-            -webkit-overflow-scrolling: touch; /* نعومة التمرير في الآيفون */
+            padding: 5px 15px 15px; 
+            gap: 12px; 
+            scrollbar-width: none; /* Firefox */
         }
-        .category-nav::-webkit-scrollbar { display: none; } /* إخفاء السكرول بار */
+        .category-nav::-webkit-scrollbar { display: none; } /* Chrome */
         
         .cat-btn { 
             background: white; 
-            color: var(--blue); 
-            border: 1px solid var(--blue); 
-            padding: 8px 20px; 
-            border-radius: 20px; 
+            color: var(--text); 
+            border: 1px solid #e0e0e0;
+            padding: 8px 24px; 
+            border-radius: 50px; 
             font-size: 0.9rem; 
-            font-weight: bold; 
+            font-weight: 600; 
             cursor: pointer; 
             flex-shrink: 0; 
-            transition: 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-family: 'Cairo', sans-serif;
         }
-        .cat-btn.active, .cat-btn:hover { background: var(--blue); color: white; }
+        .cat-btn.active { 
+            background: var(--blue); 
+            color: white; 
+            border-color: var(--blue);
+            box-shadow: 0 4px 10px rgba(26, 35, 126, 0.3);
+        }
 
-        /* --- شبكة المنتجات (Responsive) --- */
-        .container { padding: 10px; max-width: 1200px; margin: 0 auto; }
+        /* --- المنتجات (Grid) --- */
+        .container { padding: 0 15px; max-width: 800px; margin: 0 auto; }
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* عمودين للموبايل */
-            gap: 10px; 
-        }
-
-        /* تعديلات للموبايل */
-        @media (min-width: 768px) {
-            .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-            .hero { height: 250px; }
-            .hero h1 { font-size: 2.5rem; }
+            grid-template-columns: repeat(2, 1fr); /* 2 عمود في الموبايل */
+            gap: 15px; 
         }
 
         .card { 
             background: white; 
-            border-radius: 8px; 
+            border-radius: 15px; 
             overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            display: flex; 
-            flex-direction: column; 
-            border: 1px solid #eee;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: transform 0.2s;
         }
+        .card:active { transform: scale(0.98); }
         .card img { 
-            width: 100%; 
-            height: 120px; /* ارتفاع مناسب للموبايل */
+            width: 100%; height: 130px; 
             object-fit: cover; 
+            border-bottom: 1px solid #f0f0f0;
         }
-        .card-body { 
-            padding: 10px; 
-            text-align: center; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-        }
-        .card h3 { 
-            margin: 5px 0; 
-            font-size: 1rem; 
-            color: var(--text-color); 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
-        .price-tag { font-size: 0.9rem; color: #666; margin-bottom: 8px; }
+        .card-body { padding: 12px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card h3 { margin: 0 0 5px; font-size: 1rem; color: #333; }
+        .price-tag { font-size: 0.9rem; color: var(--red); font-weight: 700; margin-bottom: 10px; }
         
-        .btn { 
-            background: var(--blue); 
-            color: white; 
-            border: none; 
-            padding: 8px; 
-            width: 100%; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 0.9rem; 
-            font-weight: bold; 
+        .btn-add { 
+            background: var(--blue); color: white; border: none; 
+            padding: 8px; width: 100%; border-radius: 8px; 
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; 
+            font-family: 'Cairo';
         }
-        .btn:active { transform: scale(0.98); }
 
-        /* --- المودال (التسجيل والتفاصيل) --- */
+        /* --- المودال (Popup) --- */
         .modal { 
-            display: none; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 2000; 
-            justify-content: center; 
-            align-items: center; 
-            backdrop-filter: blur(3px);
-            padding: 15px; /* مسافة من الحواف في الموبايل */
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); z-index: 2500; 
+            justify-content: center; align-items: center; 
+            padding: 20px;
+            backdrop-filter: blur(4px);
         }
         .modal-content { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 10px; 
-            width: 100%; 
-            max-width: 400px; /* عرض مناسب زي الصورة */
-            position: relative; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-            animation: slideUp 0.3s ease;
+            background: white; padding: 25px; border-radius: 20px; 
+            width: 100%; max-width: 380px; position: relative; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        @keyframes popUp { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
-        .close-btn { position: absolute; top: 15px; left: 15px; font-size: 1.5rem; color: #999; cursor: pointer; }
-
-        /* --- تصميم فورم التسجيل (زي الصورة) --- */
-        .auth-header { text-align: center; color: var(--blue); margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; }
-        .input-group { margin-bottom: 10px; }
+        .close-btn { position: absolute; top: 15px; left: 15px; font-size: 1.5rem; color: #aaa; cursor: pointer; }
+        
+        /* --- حقول الإدخال --- */
         .custom-input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
-            font-family: inherit; 
-            font-size: 0.95rem;
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            border: 1px solid #ddd; border-radius: 10px; 
+            font-family: 'Cairo'; font-size: 0.95rem;
+            background: #fafafa;
         }
-        .btn-login { 
-            background: var(--blue); 
-            color: white; 
-            padding: 12px; 
-            width: 100%; 
-            border: none; 
-            border-radius: 5px; 
-            font-size: 1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
-        .divider-text { 
-            text-align: center; 
-            color: var(--red); 
-            margin: 20px 0; 
-            font-weight: bold; 
-            font-size: 0.95rem; 
-        }
-        .btn-register { 
-            background: #9e0000; /* أحمر غامق */
-            color: white; 
-            padding: 12px; 
-            width: 100%; 
-            border: none; 
-            border-radius: 5px; 
-            font-size: 1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
+        .custom-input:focus { border-color: var(--blue); background: white; }
 
-        /* --- سلة المشتريات وقائمة الطلبات --- */
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .remove-icon { color: var(--red); cursor: pointer; padding: 5px; }
+        .btn-main { 
+            background: var(--blue); color: white; width: 100%; 
+            padding: 12px; border: none; border-radius: 10px; 
+            font-size: 1rem; font-weight: 700; cursor: pointer; 
+            font-family: 'Cairo'; margin-top: 10px;
+        }
+        .btn-danger { background: var(--red); color: white; padding:10px; width:100%; border:none; border-radius:10px; cursor:pointer; font-family:'Cairo'; margin-top:5px; }
 
         /* --- الشات --- */
         .chat-float { 
-            position: fixed; bottom: 20px; left: 20px; 
-            background: var(--blue); color: white; 
-            width: 55px; height: 55px; 
-            border-radius: 50%; 
+            position: fixed; bottom: 25px; left: 20px; 
+            background: var(--red); color: white; 
+            width: 60px; height: 60px; border-radius: 50%; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 1.5rem; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-            z-index: 2500; cursor: pointer; border: 2px solid white;
+            font-size: 1.6rem; 
+            box-shadow: 0 4px 15px rgba(183, 28, 28, 0.4); 
+            z-index: 2000; cursor: pointer; border: 2px solid white;
         }
         .chat-window {
-            display: none; position: fixed; bottom: 85px; left: 15px; 
-            width: 300px; height: 400px; 
-            background: white; border-radius: 15px; 
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2); 
-            z-index: 2500; flex-direction: column; overflow: hidden;
-            border: 1px solid #ddd;
+            display: none; position: fixed; bottom: 95px; left: 20px; 
+            width: 300px; height: 400px; background: white; 
+            border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); 
+            z-index: 2000; flex-direction: column; overflow: hidden;
+            border: 1px solid #eee;
         }
+
+        /* --- رسالة النجاح --- */
+        .success-icon { color: var(--green); font-size: 3rem; margin-bottom: 10px; text-align: center; display: block; }
     </style>
 </head>
 <body>
@@ -244,24 +205,25 @@
     <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
 
     <header>
-        <div class="logo"><i class="fas fa-utensils"></i> نجف | NAGAF</div>
         <div class="user-controls">
-            <!-- أيقونة البروفايل -->
-            <div id="userIcon" style="display:none;" onclick="openProfile()">
-                <i class="fas fa-user-circle"></i> <span id="uNameDisplay" style="font-size:0.8rem;"></span>
-            </div>
-            <!-- زر الدخول -->
-            <div id="loginBtnNav" onclick="openAuth()">
-                <i class="fas fa-sign-in-alt"></i> دخول
-            </div>
-            <!-- السجل -->
-            <div class="icon-btn" onclick="openMyOrders()"><i class="fas fa-clipboard-list"></i></div>
             <!-- السلة -->
-            <div class="icon-btn" onclick="openCart()">
-                <i class="fas fa-shopping-cart"></i> 
+            <div class="icon-wrap" onclick="openCart()">
+                <i class="fas fa-shopping-basket"></i>
                 <span class="badge" id="cartCount">0</span>
             </div>
+            <!-- السجل -->
+            <div class="icon-wrap" onclick="openMyOrders()">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <!-- البروفايل / تسجيل الدخول -->
+            <div id="loginBtnNav" class="header-profile" onclick="openAuth()">
+                <i class="fas fa-sign-in-alt"></i> دخول
+            </div>
+            <div id="userProfileNav" class="header-profile" style="display:none;" onclick="openProfile()">
+                <i class="fas fa-user"></i> <span id="uNameDisplay"></span>
+            </div>
         </div>
+        <div class="logo">NAGAF <i class="fas fa-utensils"></i></div>
     </header>
 
     <div class="hero">
@@ -271,69 +233,77 @@
         </div>
     </div>
 
-    <div class="category-nav" id="categoryNav">
-        <!-- يتم ملؤها بالجافاسكريبت -->
-    </div>
+    <!-- القوائم -->
+    <div class="category-nav" id="categoryNav"></div>
 
+    <!-- المنتجات -->
     <div class="container">
-        <div class="grid" id="productGrid">
-            <!-- المنتجات -->
-        </div>
+        <div class="grid" id="productGrid"></div>
     </div>
 
-    <!-- ========================================== -->
-    <!--  مودال التسجيل (مطابق للصورة)  -->
-    <!-- ========================================== -->
+    <!-- ============================================ -->
+    <!--  1. مودال التسجيل (معدل) -->
+    <!-- ============================================ -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('authModal')">&times;</span>
+            <h2 style="text-align:center; color:var(--blue); margin-top:0;">تسجيل جديد</h2>
+            <p style="text-align:center; color:#666; font-size:0.9rem; margin-bottom:15px;">ادخل بياناتك للطلب بسرعة</p>
             
-            <!-- قسم تسجيل الدخول -->
-            <h2 class="auth-header">تسجيل الدخول</h2>
-            <div class="input-group">
-                <input type="email" id="loginEmail" class="custom-input" placeholder="البريد الإلكتروني">
-            </div>
-            <div class="input-group">
-                <input type="password" id="loginPass" class="custom-input" placeholder="كلمة المرور">
-            </div>
-            <button class="btn-login" onclick="handleLogin()">دخول</button>
-
-            <!-- الفاصل -->
-            <div class="divider-text">ليس لديك حساب؟ سجل الآن</div>
-
-            <!-- قسم التسجيل الجديد -->
-            <div class="input-group">
-                <input type="text" id="regName" class="custom-input" placeholder="الاسم">
-            </div>
-            <div class="input-group">
-                <input type="tel" id="regPhone" class="custom-input" placeholder="رقم الهاتف">
-            </div>
-            <div class="input-group">
-                <select id="regZone" class="custom-input">
-                    <option value="" disabled selected>اختر المنطقة</option>
-                    <option value="المعادي">المعادي</option>
-                    <option value="مدينة نصر">مدينة نصر</option>
-                    <option value="مصر الجديدة">مصر الجديدة</option>
-                    <option value="وسط البلد">وسط البلد</option>
-                    <option value="الهرم">الهرم</option>
-                    <option value="أخرى">منطقة أخرى</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <input type="text" id="regAddress" class="custom-input" placeholder="اسم الشارع ورقم العقار">
-            </div>
-            <button class="btn-register" onclick="handleRegister()">تسجيل جديد</button>
+            <input type="text" id="regName" class="custom-input" placeholder="الاسم">
+            <input type="tel" id="regPhone" class="custom-input" placeholder="رقم الهاتف">
+            <select id="regZone" class="custom-input">
+                <option value="" disabled selected>اختر المنطقة</option>
+                <option value="المعادي">المعادي</option>
+                <option value="مدينة نصر">مدينة نصر</option>
+                <option value="مصر الجديدة">مصر الجديدة</option>
+                <option value="وسط البلد">وسط البلد</option>
+                <option value="الهرم">الهرم</option>
+                <option value="أكتوبر">6 أكتوبر</option>
+            </select>
+            <input type="text" id="regAddress" class="custom-input" placeholder="اسم الشارع ورقم العقار">
+            
+            <button class="btn-main" onclick="handleRegister()">حفظ البيانات</button>
         </div>
     </div>
 
-    <!-- مودال خيارات المنتج -->
+    <!-- ============================================ -->
+    <!--  2. مودال البروفايل (الجديد) -->
+    <!-- ============================================ -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content" style="text-align:center;">
+            <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+            <div style="width:70px; height:70px; background:#eee; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--blue);">
+                <i class="fas fa-user"></i>
+            </div>
+            <h3 id="profName" style="margin:5px 0;"></h3>
+            <p id="profPhone" style="color:#666; margin:5px 0;"></p>
+            <p id="profAddress" style="color:#666; font-size:0.9rem; margin-bottom:20px;"></p>
+            
+            <button class="btn-danger" onclick="logout()">تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!--  3. مودال النجاح (الرسالة المطلوبة) -->
+    <!-- ============================================ -->
+    <div class="modal" id="successModal">
+        <div class="modal-content" style="text-align:center;">
+            <i class="fas fa-check-circle" style="font-size:4rem; color:#27ae60; margin-bottom:15px; display:block;"></i>
+            <h3 style="color:var(--blue); margin:10px 0;">تم الإرسال بنجاح!</h3>
+            <p style="color:#555; font-size:1.1rem;">تابع طلبك في السجل.</p>
+            <button class="btn-main" onclick="closeSuccessModal()">حسناً</button>
+        </div>
+    </div>
+
+    <!-- مودال الخيارات -->
     <div class="modal" id="optionsModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('optionsModal')">&times;</span>
             <h3 id="optProdName" style="color:var(--blue); text-align:center; margin-top:0;"></h3>
-            <div id="variantsList" style="margin:15px 0;"></div>
-            <h4 style="text-align:center; color:var(--red);">السعر: <span id="selectedPrice">0</span> جنيه</h4>
-            <button class="btn" style="margin-top:10px;" onclick="confirmAddToCart()">تأكيد الإضافة</button>
+            <div id="variantsList" style="margin:15px 0; max-height:200px; overflow-y:auto;"></div>
+            <h4 style="text-align:center; margin:10px 0;">السعر: <span id="selectedPrice" style="color:var(--red); font-size:1.2rem;">0</span> ج</h4>
+            <button class="btn-main" onclick="confirmAddToCart()">أضف للسلة</button>
         </div>
     </div>
 
@@ -341,12 +311,13 @@
     <div class="modal" id="cartModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('cartModal')">&times;</span>
-            <h2 style="color:var(--blue); text-align:center;">سلة المشتريات</h2>
+            <h2 style="color:var(--blue); text-align:center; border-bottom:1px solid #eee; padding-bottom:10px;">سلة المشتريات</h2>
             <div id="cartItems" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
-            <div style="text-align:center; font-weight:bold; font-size:1.1rem; margin-bottom:15px;">
-                الإجمالي: <span id="cartTotal" style="color:var(--red);">0</span> جنيه
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem; margin-bottom:15px;">
+                <span>الإجمالي:</span>
+                <span style="color:var(--red);"><span id="cartTotal">0</span> جنيه</span>
             </div>
-            <button class="btn" onclick="submitOrder()">إرسال الطلب</button>
+            <button class="btn-main" onclick="submitOrder()">تأكيد الطلب</button>
         </div>
     </div>
 
@@ -354,22 +325,21 @@
     <div class="modal" id="ordersModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('ordersModal')">&times;</span>
-            <h2 style="text-align:center; color:var(--blue);">سجل طلباتي</h2>
-            <div id="ordersList" style="max-height:60vh; overflow-y:auto;"></div>
+            <h2 style="text-align:center; color:var(--blue);">طلباتي السابقة</h2>
+            <div id="ordersList" style="max-height:60vh; overflow-y:auto; background:#f9f9f9; padding:10px; border-radius:10px;"></div>
         </div>
     </div>
 
-    <!-- زر الشات -->
-    <div class="chat-float" onclick="toggleChat()"><i class="fas fa-comments"></i></div>
-    
+    <!-- الشات -->
+    <div class="chat-float" onclick="toggleChat()"><i class="fas fa-headset"></i></div>
     <div class="chat-window" id="chatWindow">
-        <div style="background:var(--blue); color:white; padding:10px; display:flex; justify-content:space-between;">
-            <span>خدمة العملاء</span><span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+        <div style="background:var(--blue); color:white; padding:12px; display:flex; justify-content:space-between;">
+            <span style="font-weight:bold;">خدمة العملاء</span><span onclick="toggleChat()" style="cursor:pointer;">✖</span>
         </div>
         <div id="chatBody" style="flex:1; padding:10px; overflow-y:auto; background:#f9f9f9; display:flex; flex-direction:column; gap:8px;"></div>
         <div style="padding:10px; border-top:1px solid #ddd; display:flex;">
-            <input type="text" id="chatInput" placeholder="اكتب..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; margin-left:5px;">
-            <button onclick="sendChat()" style="background:var(--blue); color:white; border:none; padding:0 15px; border-radius:4px;"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="chatInput" placeholder="اكتب..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:20px; margin-left:5px;">
+            <button onclick="sendChat()" style="background:var(--blue); color:white; border:none; width:35px; height:35px; border-radius:50%;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -431,18 +401,33 @@
                             <img src="${p.img}" alt="${p.name}">
                             <div class="card-body">
                                 <h3>${p.name}</h3>
-                                <div class="price-tag">يبدأ من ${minPrice} جنيه</div>
-                                <button class="btn">أطلب الآن</button>
+                                <div class="price-tag">يبدأ من ${minPrice} ج</div>
+                                <button class="btn-add">أضف للسلة</button>
                             </div>
                         </div>`;
                 }
             });
         }
 
-        // --- تسجيل الدخول والتسجيل (Logic) ---
+        // --- إدارة المستخدم ---
         if(currentUser) setupUserUI();
         
         window.openAuth = function() { document.getElementById('authModal').style.display = 'flex'; }
+        
+        // فتح البروفايل (جديد)
+        window.openProfile = function() {
+            if(!currentUser) return openAuth();
+            document.getElementById('profName').innerText = currentUser.name;
+            document.getElementById('profPhone').innerText = currentUser.phone;
+            document.getElementById('profAddress').innerText = currentUser.address;
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('nagaf_user_info');
+            currentUser = null;
+            location.reload();
+        }
         
         window.handleRegister = function() {
             const name = document.getElementById('regName').value;
@@ -451,39 +436,25 @@
             const address = document.getElementById('regAddress').value;
 
             if(name && phone && zone && address) {
-                // حفظ البيانات
                 currentUser = { 
                     name: name, 
                     phone: phone, 
-                    address: `${zone} - ${address}`, // دمج المنطقة مع العنوان
+                    address: `${zone} - ${address}`,
                     zone: zone 
                 };
                 localStorage.setItem('nagaf_user_info', JSON.stringify(currentUser));
-                
-                // حفظ في قاعدة البيانات (اختياري)
                 push(ref(db, 'users'), { ...currentUser, role: 'customer' });
 
                 setupUserUI();
                 closeModal('authModal');
-                alert('تم التسجيل بنجاح!');
             } else {
-                alert('يرجى ملء جميع الحقول (الاسم، الهاتف، المنطقة، العنوان)');
-            }
-        }
-
-        window.handleLogin = function() {
-            // محاكاة تسجيل الدخول (في التطبيق الحقيقي تحقق من قاعدة البيانات)
-            const email = document.getElementById('loginEmail').value;
-            if(email) {
-                alert('يرجى استخدام نموذج "تسجيل جديد" للعملاء الجدد، أو سيتم تفعيل الدخول لاحقاً.');
-            } else {
-                alert('ادخل البريد الإلكتروني');
+                alert('يرجى ملء جميع البيانات');
             }
         }
 
         function setupUserUI() {
             document.getElementById('loginBtnNav').style.display = 'none';
-            document.getElementById('userIcon').style.display = 'flex';
+            document.getElementById('userProfileNav').style.display = 'flex';
             document.getElementById('uNameDisplay').innerText = currentUser.name.split(' ')[0];
         }
 
@@ -498,13 +469,13 @@
                 const borderStyle = i === 0 ? 'border:2px solid var(--blue); background:#eef;' : 'border:1px solid #ddd;';
                 list.innerHTML += `
                 <div onclick="selectVar(${i}, this)" 
-                     style="padding:10px; margin-bottom:5px; border-radius:5px; cursor:pointer; display:flex; justify-content:space-between; ${borderStyle}"
+                     style="padding:12px; margin-bottom:8px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; ${borderStyle}"
                      data-price="${v.price}">
-                    <span>${v.bread} - ${v.size}</span>
-                    <span style="font-weight:bold; color:var(--red)">${v.price} ج</span>
+                    <span style="font-size:0.95rem;">${v.bread} - ${v.size}</span>
+                    <span style="font-weight:bold; color:var(--red);">${v.price} ج</span>
                 </div>`;
             });
-            window.selectVar(0, list.children[0]); // اختر الأول تلقائياً
+            window.selectVar(0, list.children[0]);
             document.getElementById('optionsModal').style.display = 'flex';
         }
 
@@ -533,14 +504,14 @@
             div.innerHTML = cart.map((i, idx) => {
                 total += i.variant.price;
                 return `
-                <div class="cart-item">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:8px 0;">
                     <div>
-                        <div style="font-weight:bold;">${i.name}</div>
-                        <div style="font-size:0.85rem; color:#666;">${i.variant.bread} | ${i.variant.size}</div>
+                        <div style="font-weight:bold; font-size:0.95rem;">${i.name}</div>
+                        <div style="font-size:0.8rem; color:#666;">${i.variant.bread} | ${i.variant.size}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span>${i.variant.price} ج</span>
-                        <i class="fas fa-trash remove-icon" onclick="window.remItem(${idx})"></i>
+                        <span style="font-weight:bold;">${i.variant.price} ج</span>
+                        <i class="fas fa-trash-alt" style="color:var(--red); cursor:pointer;" onclick="window.remItem(${idx})"></i>
                     </div>
                 </div>`;
             }).join('');
@@ -551,7 +522,7 @@
         window.openCart = function() { document.getElementById('cartModal').style.display = 'flex'; }
         window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; }
 
-        // --- إرسال الطلب ---
+        // --- إرسال الطلب (مع رسالة النجاح الجديدة) ---
         window.submitOrder = function() {
             if(!currentUser) {
                 closeModal('cartModal');
@@ -571,18 +542,20 @@
                 timestamp: Date.now(),
                 seenByAdmin: false
             }).then(() => {
-                // ================================
-                // الرسالة المطلوبة
-                // ================================
-                alert("تم الإرسال بنجاح! تابع طلبك في السجل.");
-                
+                // إظهار رسالة النجاح المخصصة
+                closeModal('cartModal');
                 cart = []; 
                 updateCart();
-                closeModal('cartModal');
-                window.openMyOrders(); // فتح السجل تلقائياً
+                document.getElementById('successModal').style.display = 'flex'; // فتح مودال النجاح
             }).catch(e => {
                 alert("حدث خطأ في الاتصال");
             });
+        }
+
+        // إغلاق مودال النجاح وفتح السجل
+        window.closeSuccessModal = function() {
+            document.getElementById('successModal').style.display = 'none';
+            window.openMyOrders();
         }
 
         // --- السجل والشات ---
@@ -595,24 +568,23 @@
                 
                 const myOrders = Object.values(data).filter(o => o.phone === currentUser.phone).reverse();
                 
-                if(myOrders.length === 0) list.innerHTML = '<p style="text-align:center; padding:20px;">لا توجد طلبات سابقة</p>';
+                if(myOrders.length === 0) list.innerHTML = '<p style="text-align:center;">لا توجد طلبات</p>';
 
                 myOrders.forEach(o => {
                     let stText = 'قيد الانتظار';
-                    let stColor = 'orange';
-                    if(o.status === 'processing') { stText = 'جاري التحضير'; stColor = 'blue'; }
-                    if(o.status === 'completed') { stText = 'مكتمل'; stColor = 'green'; }
-                    if(o.status === 'cancelled') { stText = 'ملغي'; stColor = 'red'; }
+                    let stColor = '#f39c12';
+                    if(o.status === 'processing') { stText = 'جاري التحضير'; stColor = '#3498db'; }
+                    if(o.status === 'completed') { stText = 'مكتمل'; stColor = '#27ae60'; }
+                    if(o.status === 'cancelled') { stText = 'ملغي'; stColor = '#c0392b'; }
 
                     list.innerHTML += `
-                    <div style="background:#f9f9f9; border:1px solid #eee; padding:10px; margin-bottom:10px; border-radius:5px;">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                            <span>${o.total} جنيه</span>
-                            <span style="color:${stColor}">${stText}</span>
+                    <div style="background:white; border:1px solid #eee; padding:12px; margin-bottom:10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="font-weight:bold;">${o.total} جنيه</span>
+                            <span style="background:${stColor}; color:white; padding:2px 8px; border-radius:10px; font-size:0.8rem;">${stText}</span>
                         </div>
-                        <div style="font-size:0.85rem; color:#666; margin-top:5px;">${new Date(o.timestamp).toLocaleString('ar-EG')}</div>
-                        <div style="font-size:0.9rem; margin-top:5px;">${o.items.map(i=>i.name).join(', ')}</div>
-                        ${o.rejectionReason ? `<div style="color:red; font-size:0.85rem; margin-top:5px; background:#fee; padding:5px;">ملاحظة: ${o.rejectionReason}</div>` : ''}
+                        <div style="font-size:0.85rem; color:#888;">${new Date(o.timestamp).toLocaleString('ar-EG')}</div>
+                        <div style="margin-top:5px; font-size:0.9rem;">${o.items.map(i=>i.name).join(' + ')}</div>
                     </div>`;
                 });
                 document.getElementById('ordersModal').style.display = 'flex';
@@ -640,9 +612,9 @@
                 const msgs = snap.val() || {};
                 document.getElementById('chatBody').innerHTML = Object.values(msgs).map(m => `
                     <div style="align-self:${m.sender==='customer'?'flex-start':'flex-end'}; 
-                                background:${m.sender==='customer'?'var(--blue)':'#ddd'}; 
-                                color:${m.sender==='customer'?'white':'black'}; 
-                                padding:8px 12px; border-radius:10px; max-width:80%; font-size:0.9rem;">
+                                background:${m.sender==='customer'?'var(--blue)':'#e0e0e0'}; 
+                                color:${m.sender==='customer'?'white':'#333'}; 
+                                padding:8px 12px; border-radius:12px; max-width:85%; font-size:0.9rem;">
                         ${m.text}
                     </div>`).join('');
             });
