@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مطعم نجف - Nagaf</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- الأيقونات والخطوط -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root { 
             --blue: #1a237e; 
+            --dark-blue: #0d1b6e; /* لون الفوتر */
             --red: #b71c1c;  
             --white: #ffffff; 
             --bg-gray: #f4f6f8; 
@@ -21,7 +23,7 @@
             font-family: 'Cairo', sans-serif; 
             margin: 0; 
             background: var(--bg-gray); 
-            padding-bottom: 90px;
+            padding-bottom: 0; /* الفوتر هياخد المساحة تحت */
         }
 
         /* --- الهيدر --- */
@@ -36,51 +38,29 @@
             top: 0; 
             z-index: 1000; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            height: 70px; /* تثبيت ارتفاع الهيدر */
+            height: 70px;
         }
 
-        /* تنسيق اللوجو المدور */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        /* اللوجو المدور */
+        .logo-container { display: flex; align-items: center; gap: 10px; }
         .logo-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%; /* يخلي الصورة مدورة */
+            width: 50px; height: 50px;
+            border-radius: 50%;
             border: 2px solid white;
-            object-fit: cover; /* يظبط أبعاد الصورة جوه الدائرة */
+            object-fit: cover;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             background: white;
         }
-        .logo-text {
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: none; /* نخفي الاسم في الموبايل عشان الزحمة */
-        }
-        @media (min-width: 400px) {
-            .logo-text { display: block; }
-        }
+        .logo-text { font-weight: 700; font-size: 1.1rem; display: none; }
+        @media (min-width: 400px) { .logo-text { display: block; } }
         
-        /* أدوات المستخدم (User Controls) */
-        .user-controls { 
-            display: flex; 
-            gap: 15px; 
-            align-items: center; 
-        }
-        
-        /* أيقونات الهيدر */
+        /* أدوات المستخدم */
+        .user-controls { display: flex; gap: 15px; align-items: center; }
         .icon-wrap { 
-            position: relative; 
-            cursor: pointer; 
-            width: 40px; 
-            height: 40px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
+            position: relative; cursor: pointer; 
+            width: 40px; height: 40px; 
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; transition: background 0.2s;
         }
         .icon-wrap:active { background: rgba(255,255,255,0.1); }
         .icon-wrap i { font-size: 1.4rem; }
@@ -94,17 +74,12 @@
             border: 2px solid var(--blue);
         }
 
-        /* زر البروفايل المحسن */
+        /* زر البروفايل */
         .profile-btn {
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            width: 40px; 
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2); border-radius: 50%;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.3);
         }
         .profile-btn i { font-size: 1.2rem; }
 
@@ -112,13 +87,9 @@
         .hero { 
             background: linear-gradient(rgba(26, 35, 126, 0.8), rgba(183, 28, 28, 0.6)), url('https://source.unsplash.com/800x600/?egyptian-food') center/cover;
             height: 160px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            color: white; 
-            border-radius: 0 0 25px 25px;
-            margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; 
+            text-align: center; color: white; 
+            border-radius: 0 0 25px 25px; margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .hero h1 { font-size: 1.8rem; margin: 0; font-weight: 700; text-shadow: 2px 2px 4px black; }
@@ -131,12 +102,12 @@
             background: white; color: var(--text); border: 1px solid #e0e0e0;
             padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; 
             cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-family: 'Cairo', sans-serif;
+            transition: 0.3s;
         }
         .cat-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
 
         /* --- المنتجات --- */
-        .container { padding: 0 15px; max-width: 800px; margin: 0 auto; }
+        .container { padding: 0 15px; max-width: 800px; margin: 0 auto; min-height: 50vh; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .card { 
             background: white; border-radius: 15px; overflow: hidden; 
@@ -144,9 +115,9 @@
         }
         .card img { width: 100%; height: 130px; object-fit: cover; }
         .card-body { padding: 12px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .card h3 { margin: 0 0 5px; font-size: 1rem; color: #333; }
+        .card h3 { margin: 0 0 5px; font-size: 1rem; color: #333; font-weight: 700; }
         .price-tag { font-size: 0.9rem; color: var(--red); font-weight: 700; margin-bottom: 10px; }
-        .btn-add { background: var(--blue); color: white; border: none; padding: 8px; width: 100%; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-family: 'Cairo'; }
+        .btn-add { background: var(--blue); color: white; border: none; padding: 8px; width: 100%; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: bold; }
 
         /* --- المودال --- */
         .modal { 
@@ -157,22 +128,38 @@
         .modal-content { 
             background: white; padding: 25px; border-radius: 20px; 
             width: 100%; max-width: 380px; position: relative; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: popUp 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popUp 0.3s ease;
         }
         @keyframes popUp { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 1.5rem; color: #aaa; cursor: pointer; }
         
-        .custom-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Cairo'; background: #fafafa; }
-        .btn-main { background: var(--blue); color: white; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: 'Cairo'; margin-top: 10px; }
-        .btn-danger { background: var(--red); color: white; padding:10px; width:100%; border:none; border-radius:10px; cursor:pointer; font-family:'Cairo'; margin-top:5px; }
+        .custom-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Cairo'; background: #fafafa; font-size: 1rem; }
+        .btn-main { background: var(--blue); color: white; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-danger { background: var(--red); color: white; padding:10px; width:100%; border:none; border-radius:10px; cursor:pointer; font-weight: 700; margin-top:5px; }
+
+        /* --- الفوتر (جديد) --- */
+        footer {
+            background-color: var(--dark-blue);
+            color: white;
+            text-align: center;
+            padding: 25px 0 30px 0; /* 30px من تحت كفاية عشان مفيش شات ثابت */
+            margin-top: 40px;
+            border-top: 4px solid var(--red);
+        }
+        .footer-hotline { font-size: 2rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .footer-icons { display: flex; justify-content: center; gap: 25px; margin-bottom: 15px; }
+        .footer-icons a { color: white; font-size: 2rem; text-decoration: none; transition: transform 0.2s; }
+        .footer-icons a:hover { transform: scale(1.1); }
+        .footer-copy { font-size: 1rem; opacity: 0.8; }
 
         /* --- الشات --- */
-        .chat-float { position: fixed; bottom: 25px; left: 20px; background: var(--red); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(183, 28, 28, 0.4); z-index: 2000; cursor: pointer; border: 2px solid white; }
-        .chat-window { display: none; position: fixed; bottom: 95px; left: 20px; width: 300px; height: 400px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); z-index: 2000; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
+        .chat-float { position: fixed; bottom: 30px; left: 20px; background: var(--red); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(183, 28, 28, 0.4); z-index: 2000; cursor: pointer; border: 2px solid white; }
+        .chat-window { display: none; position: fixed; bottom: 100px; left: 20px; width: 300px; height: 400px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); z-index: 2000; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
     </style>
 </head>
 <body>
+
+    <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
 
     <header>
         <div class="user-controls">
@@ -185,19 +172,19 @@
             <div class="icon-wrap" onclick="openMyOrders()">
                 <i class="fas fa-receipt"></i>
             </div>
-            <!-- زر الدخول -->
+            <!-- زر الدخول (لغير المسجلين) -->
             <div id="loginBtnNav" class="profile-btn" onclick="openAuth()">
                 <i class="fas fa-sign-in-alt"></i>
             </div>
-            <!-- زر البروفايل (بعد الدخول) -->
+            <!-- زر البروفايل (للمسجلين) -->
             <div id="userProfileNav" class="profile-btn" style="display:none;" onclick="openProfile()">
                 <i class="fas fa-user"></i>
             </div>
         </div>
 
-        <!-- اللوجو المدور -->
+        <!-- اللوجو -->
         <div class="logo-container">
-            <!-- ضع اسم صورة اللوجو هنا، مثلاً logo.png -->
+            <!-- تأكد إنك رفعت صورة اسمها logo.png -->
             <img src="logo.png" alt="Nagaf" class="logo-img" onerror="this.src='https://via.placeholder.com/50/8c0104/ffffff?text=N'">
             <div class="logo-text">سلسلة مطاعم نجف</div>
         </div>
@@ -217,6 +204,18 @@
     <div class="container">
         <div class="grid" id="productGrid"></div>
     </div>
+
+    <!-- ======================== الفوتر ======================== -->
+    <footer>
+        <div class="footer-hotline">
+            <i class="fas fa-headset"></i> 19971
+        </div>
+        <div class="footer-icons">
+            <a href="https://wa.me/201119008397" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        </div>
+        <div class="footer-copy">نجف | 2025</div>
+    </footer>
 
     <!-- 1. مودال التسجيل -->
     <div class="modal" id="authModal">
@@ -314,6 +313,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // إعدادات فايربيس
         const firebaseConfig = {
             apiKey: "AIzaSyAaf3l8VFttOCruK9jZczBsi1eBwg2U5yE",
             authDomain: "nagaf-f9b1c.firebaseapp.com",
@@ -333,13 +333,14 @@
         let selectedProductTemp = null;
         let selectedVariantTemp = null;
 
-        // --- تحميل البيانات ---
+        // --- تحميل المنتجات ---
         onValue(ref(db, 'products'), (snapshot) => {
             const data = snapshot.val() || {};
             products = Object.values(data);
             loadProducts('all');
         });
 
+        // --- تحميل التصنيفات ---
         onValue(ref(db, 'categories'), (snapshot) => {
             const data = snapshot.val() || {};
             const nav = document.getElementById('categoryNav');
@@ -379,18 +380,11 @@
         
         window.openAuth = function() { document.getElementById('authModal').style.display = 'flex'; }
         
-        // ** التعديل الهام هنا: فتح البروفايل **
         window.openProfile = function() {
-            if(!currentUser) {
-                openAuth();
-                return;
-            }
-            // ملء بيانات المودال
+            if(!currentUser) { openAuth(); return; }
             document.getElementById('profName').innerText = currentUser.name;
             document.getElementById('profPhone').innerText = currentUser.phone;
             document.getElementById('profAddress').innerText = currentUser.address;
-            
-            // فتح المودال
             document.getElementById('profileModal').style.display = 'flex';
         }
 
@@ -483,7 +477,7 @@
             }).then(() => {
                 closeModal('cartModal');
                 cart = []; updateCart();
-                document.getElementById('successModal').style.display = 'flex';
+                document.getElementById('successModal').style.display = 'flex'; // المودال الجديد
             }).catch(e => alert("حدث خطأ"));
         }
 
