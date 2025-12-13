@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم نجف - أونلاين</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; }
+        .header { background: #18248b; color: white; padding: 15px; text-align: center; }
+        .container { padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 300px; background: white; padding: 15px; border-radius: 8px; height: 80vh; overflow-y: auto; }
+        .card { border: 1px solid #ddd; margin-bottom: 10px; padding: 10px; border-radius: 5px; border-left: 5px solid #18248b; }
+        button { padding: 5px 10px; cursor: pointer; margin-top: 5px; color: white; border: none; }
+        .btn-accept { background: #27ae60; } .btn-reject { background: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="header"><h2>👨‍🍳 لوحة التحكم (Firebase)</h2></div>
+    <div class="container">
+        <div class="col"><h3 style="color:#c0392b">🔔 طلبات جديدة</h3><div id="newOrders">جاري الاتصال...</div></div>
+        <div class="col"><h3 style="color:#18248b">🍳 جاري التحضير</h3><div id="processingOrders"></div></div>
+        <div class="col"><h3 style="color:green">✅ تم التسليم</h3><div id="completedOrders"></div></div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const firebaseConfig = { apiKey: "AIzaSyAaf3l8VFttOCruK9jZczBsi1eBwg2U5yE", authDomain: "nagaf-f9b1c.firebaseapp.com", projectId: "nagaf-f9b1c", databaseURL: "https://nagaf-f9b1c-default-rtdb.firebaseio.com" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+        onValue(ref(db, 'orders'), (snapshot) => {
+            const data = snapshot.val();
+            const n=document.getElementById('newOrders'), p=document.getElementById('processingOrders'), c=document.getElementById('completedOrders');
+            n.innerHTML=''; p.innerHTML=''; c.innerHTML='';
+            if(!data) { n.innerHTML='<p>لا توجد طلبات</p>'; return; }
+            Object.keys(data).reverse().forEach(k => {
+                const o = data[k];
+                const cartHtml = o.cart ? o.cart.map(i=>`<div>- ${i.item} (${i.price})</div>`).join('') : '';
+                let btns = '';
+                if(o.status==='new') btns=`<button class="btn-accept" onclick="up('${k}','processing')">قبول</button> <button class="btn-reject" onclick="up('${k}','cancelled')">رفض</button>`;
+                else if(o.status==='processing') btns=`<button class="btn-accept" style="background:#18248b" onclick="up('${k}','completed')">تم التسليم</button>`;
+                const card = `<div class="card"><b>${o.name} (${o.total}ج)</b><br><small>${o.phone} - ${o.address}</small><hr>${cartHtml}<br>${btns}</div>`;
+                if(o.status==='new') n.innerHTML+=card; else if(o.status==='processing') p.innerHTML+=card; else if(o.status==='completed') c.innerHTML+=card;
+            });
+        });
+        window.up = function(k, s) { update(ref(db, 'orders/'+k), {status:s}); }
+    </script>
+</body>
+</html>
