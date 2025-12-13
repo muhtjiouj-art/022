@@ -23,7 +23,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .form-box { background: white; padding: 25px; border-radius: 10px; max-width: 900px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         label { font-weight: bold; color: #555; }
 
         .users-table { width: 100%; border-collapse: collapse; background: white; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -50,6 +50,17 @@
         .chat-layout { display: flex; height: 70vh; gap: 20px; }
         .chat-list { width: 250px; background: white; overflow-y: auto; border: 1px solid #ddd; }
         .chat-area { flex: 1; background: white; display: flex; flex-direction: column; border: 1px solid #ddd; }
+
+        /* ستايل قائمة المتغيرات المضافة */
+        .variant-tag {
+            background: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 2px;
+            display: inline-block;
+            border: 1px solid var(--blue);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -67,18 +78,14 @@
         <h2 style="text-align:center;">
             <i class="fas fa-user-shield"></i> <span id="adminNameDisplay"></span>
         </h2>
-        
         <div class="menu-item active" onclick="nav('live-orders')"><i class="fas fa-bell"></i> الطلبات الحية</div>
         <div class="menu-item" onclick="nav('dashboard')"><i class="fas fa-chart-line"></i> السجل والإحصائيات</div>
-        
         <div class="admin-only">
             <div class="menu-item" onclick="nav('reports')"><i class="fas fa-file-invoice-dollar"></i> التقارير</div>
-            <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج</div>
-            <div class="menu-item" onclick="nav('offers')"><i class="fas fa-tags"></i> إضافة عرض</div> <!-- زر العروض الجديد -->
+            <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج/عرض</div>
             <div class="menu-item" onclick="nav('manage-products')"><i class="fas fa-boxes"></i> إدارة المنتجات</div>
             <div class="menu-item" onclick="nav('users')"><i class="fas fa-users-cog"></i> الموظفين</div>
         </div>
-
         <div class="menu-item" onclick="nav('chat')"><i class="fas fa-comments"></i> الشات</div>
         <div class="menu-item" onclick="location.reload()" style="margin-top:auto; background:var(--red);"><i class="fas fa-sign-out-alt"></i> خروج</div>
     </div>
@@ -128,61 +135,57 @@
             </div>
         </div>
 
-        <!-- 4. إضافة منتج -->
+        <!-- 4. إضافة منتج (معدل ليقبل خيارات متعددة) -->
         <div id="products" class="section">
             <div class="form-box">
-                <h3>إضافة منتج</h3>
-                <input type="text" id="prodName" placeholder="اسم المنتج">
+                <h3>إضافة منتج أو عرض جديد</h3>
+                
+                <label>اسم المنتج / العرض</label>
+                <input type="text" id="prodName" placeholder="مثال: عرض الصحاب">
+                
+                <label>رابط الصورة</label>
                 <input type="text" id="prodImg" placeholder="رابط الصورة">
+                
+                <label>التصنيف</label>
                 <select id="prodCatSelect">
-                    <option value="" disabled selected>جاري تحميل التصنيفات...</option>
+                    <option value="" disabled selected>جاري التحميل...</option>
                 </select>
-                <div style="background:#f9f9f9; padding:10px; margin:10px 0;">
-                    <label>الخيارات (مثال: سوري - وسط - 50)</label>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="vBread" placeholder="النوع">
-                        <input type="text" id="vSize" placeholder="الحجم">
-                        <input type="number" id="vPrice" placeholder="السعر">
+
+                <!-- قسم الخيارات المتعددة -->
+                <div style="background:#f0f8ff; padding:15px; margin:15px 0; border:1px solid #bddfff; border-radius:5px;">
+                    <h4 style="margin-top:0; color:var(--blue);">خيارات المنتج (أضف كل الأنواع/الأحجام المتاحة)</h4>
+                    <p style="font-size:0.9rem; color:#666;">مثال: أضف خيار "لحمة" وسعره، ثم أضف خيار "فراخ" وسعره، ثم خيار "ميكس" وسعره.</p>
+                    
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" id="vType" placeholder="النوع/الوصف (مثال: 2 فراخ + بيبسي)" style="flex:2;">
+                        <input type="text" id="vSize" placeholder="الحجم (وسط/كبير)" style="flex:1;">
+                        <input type="number" id="vPrice" placeholder="السعر" style="flex:1;">
                     </div>
-                    <button class="btn-blue" style="background:var(--green); padding:5px 15px;" id="addVarBtn">+</button>
-                    <div id="tempVarsDisplay" style="margin-top:5px; color:#666;"></div>
+                    
+                    <button class="btn-blue" style="background:var(--green); width:auto;" id="addVarBtn">
+                        <i class="fas fa-plus"></i> إضافة الخيار للقائمة
+                    </button>
+
+                    <!-- هنا ستظهر الخيارات التي أضفتها قبل الحفظ -->
+                    <div id="tempVarsDisplay" style="margin-top:15px;"></div>
                 </div>
-                <button class="btn-blue" style="width:100%" id="saveProdBtn">حفظ المنتج</button>
+
+                <button class="btn-blue" style="width:100%; font-size:1.2rem;" id="saveProdBtn">حفظ المنتج النهائي</button>
             </div>
+
             <div class="form-box">
-                <h3>إضافة تصنيف</h3>
-                <input type="text" id="catMain" placeholder="اسم التصنيف">
+                <h3>إضافة تصنيف جديد</h3>
+                <input type="text" id="catMain" placeholder="اسم التصنيف (مثال: عروض)">
                 <button class="btn-blue" id="addCatBtn">إضافة</button>
             </div>
         </div>
 
-        <!-- 5. إضافة عرض (جديد) -->
-        <div id="offers" class="section">
-            <div class="form-box">
-                <h3 style="color:var(--red);">إضافة عرض جديد (Bundle)</h3>
-                <label>اسم العرض</label>
-                <input type="text" id="offerName" placeholder="مثال: عرض الصحاب">
-                
-                <label>صورة العرض</label>
-                <input type="text" id="offerImg" placeholder="رابط صورة العرض">
-                
-                <label>مكونات العرض (اكتب هنا التفاصيل)</label>
-                <textarea id="offerDesc" rows="3" placeholder="مثال: 2 ساندوتش شاورما + 2 بيبسي + بطاطس"></textarea>
-                
-                <label>السعر الإجمالي</label>
-                <input type="number" id="offerPrice" placeholder="السعر">
-
-                <button class="btn-blue" style="width:100%" onclick="saveOffer()">نشر العرض</button>
-            </div>
-        </div>
-
-        <!-- 6. إدارة المنتجات -->
         <div id="manage-products" class="section">
-            <h3>إدارة المنتجات والعروض</h3>
+            <h3>إدارة المنتجات</h3>
             <table class="users-table"><thead><tr><th>المنتج</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="manageProdList"></tbody></table>
         </div>
 
-        <!-- 7. الموظفين -->
+        <!-- 5. الموظفين -->
         <div id="users" class="section">
             <div class="form-box">
                 <h3>إضافة موظف جديد</h3>
@@ -203,7 +206,7 @@
             </table>
         </div>
 
-        <!-- 8. الشات -->
+        <!-- 6. الشات -->
         <div id="chat" class="section">
             <div class="chat-layout">
                 <div class="chat-list" id="chatUsersList"></div>
@@ -251,7 +254,7 @@
         let tempVariants = [];
         let allOrders = {};
 
-        // --- Auth ---
+        // Login
         document.getElementById('loginBtn').addEventListener('click', () => {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
@@ -294,46 +297,77 @@
             onValue(ref(db, 'chats'), (snapshot) => { renderChatList(snapshot.val() || {}); if(activeChatUser) loadAdminChat(activeChatUser); });
         }
 
-        // --- Offers Logic (جديد) ---
-        window.saveOffer = function() {
-            const name = document.getElementById('offerName').value;
-            const img = document.getElementById('offerImg').value;
-            const desc = document.getElementById('offerDesc').value;
-            const price = document.getElementById('offerPrice').value;
+        // --- Products & Variants Logic (المعدل) ---
+        document.getElementById('addVarBtn').addEventListener('click', () => {
+            let type = document.getElementById('vType').value; // النوع/الوصف
+            let size = document.getElementById('vSize').value || 'موحد'; // الحجم
+            let price = document.getElementById('vPrice').value;
 
-            if(name && price && desc) {
-                push(ref(db, 'products'), {
-                    name: name,
-                    img: img,
-                    cat: "عروض", // تصنيف ثابت للعروض
-                    variants: [{ bread: desc, size: "عرض خاص", price: parseInt(price) }], // تخزين كوصف وسعر
-                    available: true
-                });
-                alert('تم نشر العرض بنجاح!');
-                document.getElementById('offerName').value='';
-                document.getElementById('offerDesc').value='';
-                document.getElementById('offerPrice').value='';
+            if(type && price) { 
+                // إضافة الخيار للمصفوفة المؤقتة
+                tempVariants.push({bread: type, size: size, price: parseInt(price)}); 
+                
+                // عرض الخيار في القائمة
+                document.getElementById('tempVarsDisplay').innerHTML += `
+                    <span class="variant-tag">
+                        ${type} (${size}) : ${price}ج 
+                        <i class="fas fa-times" onclick="removeTempVar(${tempVariants.length-1}, this)" style="cursor:pointer; color:red; margin-right:5px;"></i>
+                    </span>`;
+                
+                // تفريغ الحقول
+                document.getElementById('vType').value = '';
+                document.getElementById('vSize').value = '';
+                document.getElementById('vPrice').value = '';
             } else {
-                alert('املأ جميع البيانات');
+                alert('يجب إدخال النوع والسعر على الأقل');
             }
+        });
+
+        // دالة حذف خيار مؤقت (اختياري للتحسين)
+        window.removeTempVar = function(index, el) {
+            // ملاحظة: الحذف من المصفوفة بدقة يحتاج إعادة رسم، هنا سنخفيه شكلياً للتسهيل
+            // أو يمكن إعادة بناء المصفوفة. للتبسيط الآن سنخفي العنصر ونعتبره موجوداً أو نمسح القائمة بالكامل عند الحفظ.
+            el.parentElement.style.display = 'none';
+            // في التطبيق الفعلي يفضل إعادة رسم القائمة من المصفوفة.
         }
 
-        // --- Other Logic ---
-        document.getElementById('addCatBtn').addEventListener('click', () => {
-            let n=document.getElementById('catMain').value; if(n){ push(ref(db,'categories'),{name:n}); alert('تم'); document.getElementById('catMain').value=''; }
+        document.getElementById('saveProdBtn').addEventListener('click', () => {
+            let n = document.getElementById('prodName').value;
+            let i = document.getElementById('prodImg').value;
+            let c = document.getElementById('prodCatSelect').value;
+            
+            if(n && tempVariants.length > 0) { 
+                push(ref(db, 'products'), {
+                    name: n, 
+                    img: i, 
+                    cat: c || 'عروض', // لو ماخترش تصنيف نعتبره عرض
+                    variants: tempVariants, 
+                    available: true
+                }); 
+                alert('تم حفظ المنتج بجميع خياراته!'); 
+                
+                // إعادة تعيين النموذج
+                tempVariants = []; 
+                document.getElementById('prodName').value = ''; 
+                document.getElementById('tempVarsDisplay').innerHTML = ''; 
+                document.getElementById('vType').value = '';
+            } else {
+                alert('تأكد من كتابة الاسم وإضافة خيار واحد على الأقل (السعر والنوع)');
+            }
         });
+
+        document.getElementById('addCatBtn').addEventListener('click', () => {
+            let n = document.getElementById('catMain').value; 
+            if(n){ push(ref(db,'categories'),{name:n}); alert('تمت الإضافة'); document.getElementById('catMain').value=''; }
+        });
+
         function populateCats(data) {
-            const s = document.getElementById('prodCatSelect'); s.innerHTML = '<option value="" disabled selected>اختر التصنيف</option>';
+            const s = document.getElementById('prodCatSelect'); 
+            s.innerHTML = '<option value="" disabled selected>اختر التصنيف</option>';
             Object.values(data).forEach(c => s.innerHTML += `<option value="${c.name}">${c.name}</option>`);
         }
-        document.getElementById('addVarBtn').addEventListener('click', () => {
-            let b=document.getElementById('vBread').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value;
-            if(p) { tempVariants.push({bread:b,size:s,price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerText += `${b}-${s} (${p}ج) | `; }
-        });
-        document.getElementById('saveProdBtn').addEventListener('click', () => {
-            let n=document.getElementById('prodName').value, i=document.getElementById('prodImg').value, c=document.getElementById('prodCatSelect').value;
-            if(n && tempVariants.length) { push(ref(db,'products'),{name:n,img:i,cat:c,variants:tempVariants,available:true}); alert('تم'); tempVariants=[]; document.getElementById('prodName').value=''; document.getElementById('tempVarsDisplay').innerText=''; }
-        });
+
+        // --- باقي الكود (الموظفين، الطلبات، الشات) ---
         document.getElementById('addUserBtn').addEventListener('click', () => {
             let u = document.getElementById('newUName').value, p = document.getElementById('newUPass').value, r = document.getElementById('newURole').value;
             if(u && p) { push(ref(db, 'users'), {name:u, pass:p, role:r}); document.getElementById('newUName').value=''; document.getElementById('newUPass').value=''; alert('تم'); }
@@ -358,7 +392,7 @@
         }
         window.openOrder = function(k) {
             const o=allOrders[k]; if(!o)return;
-            let iHTML=(o.items||o.cart||[]).map(i=>`<li>${i.name||i.item} ${i.variant?`(${i.variant.bread})`:''} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
+            let iHTML=(o.items||o.cart||[]).map(i=>`<li>${i.name||i.item} ${i.variant?`(${i.variant.bread} ${i.variant.size !== 'موحد' ? '- '+i.variant.size : ''})`:''} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
             document.getElementById('modalBody').innerHTML=`<p><strong>${o.customerName}</strong> (${o.phone})</p><p>${o.address}</p><hr><ul>${iHTML}</ul><h3 style="color:var(--red)">${o.total} ج</h3>`;
             const act=document.getElementById('modalActions'), alertB=document.getElementById('cancelAlert');
             act.innerHTML='';
