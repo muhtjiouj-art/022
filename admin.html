@@ -2,45 +2,355 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم نجف - أونلاين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; }
-        .header { background: #18248b; color: white; padding: 15px; text-align: center; }
-        .container { padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
-        .col { flex: 1; min-width: 300px; background: white; padding: 15px; border-radius: 8px; height: 80vh; overflow-y: auto; }
-        .card { border: 1px solid #ddd; margin-bottom: 10px; padding: 10px; border-radius: 5px; border-left: 5px solid #18248b; }
-        button { padding: 5px 10px; cursor: pointer; margin-top: 5px; color: white; border: none; }
-        .btn-accept { background: #27ae60; } .btn-reject { background: #c0392b; }
+        /* نفس التصميم الخاص بك */
+        :root { --blue: #18248b; --red: #8c0104; --white: #ffffff; --green: #27ae60; --gray: #f0f2f5; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; background: var(--gray); height: 100vh; overflow: hidden; }
+
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--blue); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+        #loginScreen input { padding: 10px; width: 250px; margin: 10px; border-radius: 5px; border: none; }
+        #loginScreen button { padding: 10px 30px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .sidebar { width: 260px; background: var(--blue); color: white; padding: 20px 10px; display: flex; flex-direction: column; border-left: 5px solid var(--red); }
+        .menu-item { padding: 12px; margin: 5px 0; cursor: pointer; border-radius: 5px; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); border-right: 4px solid var(--red); }
+        .main { flex: 1; padding: 20px; overflow-y: auto; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .form-box { background: white; padding: 20px; border-radius: 10px; max-width: 800px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 15px; }
+        th { background: var(--blue); color: white; padding: 10px; }
+        td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        button { cursor: pointer; border: none; padding: 8px 15px; border-radius: 4px; color: white; font-weight: bold; margin: 2px; }
+        .btn-blue { background: var(--blue); } .btn-green { background: var(--green); } .btn-red { background: var(--red); }
+
+        .dash-container { display: flex; gap: 20px; margin-bottom: 20px; }
+        .dash-card { flex: 1; background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stat-val { font-size: 2rem; font-weight: bold; color: var(--blue); }
+
+        .order-card { background: white; padding: 15px; border-radius: 5px; margin-bottom: 10px; border-left: 5px solid var(--blue); cursor: pointer; position: relative; transition: 0.2s; }
+        .order-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .cancel-requested { border-left-color: orange !important; animation: flashOrange 1.5s infinite; }
+        @keyframes flashOrange { 0%,100% { background: white; } 50% { background: #fff8e1; } }
+        .cancel-badge { background: var(--red); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; position: absolute; top: 10px; left: 10px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 500px; max-width: 90%; border-top: 5px solid var(--red); max-height: 80vh; overflow-y: auto; }
+
+        .chat-layout { display: flex; height: 70vh; gap: 20px; }
+        .chat-list { width: 250px; background: white; overflow-y: auto; border: 1px solid #ddd; }
+        .chat-area { flex: 1; background: white; display: flex; flex-direction: column; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
-    <div class="header"><h2>👨‍🍳 لوحة التحكم (Firebase)</h2></div>
-    <div class="container">
-        <div class="col"><h3 style="color:#c0392b">🔔 طلبات جديدة</h3><div id="newOrders">جاري الاتصال...</div></div>
-        <div class="col"><h3 style="color:#18248b">🍳 جاري التحضير</h3><div id="processingOrders"></div></div>
-        <div class="col"><h3 style="color:green">✅ تم التسليم</h3><div id="completedOrders"></div></div>
+
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
+
+    <!-- Login -->
+    <div id="loginScreen">
+        <h1>بوابة الإدارة (Online)</h1>
+        <input type="text" id="username" placeholder="اسم المستخدم (admin)">
+        <input type="password" id="password" placeholder="كلمة المرور (123)">
+        <button id="loginBtn">دخول</button>
     </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2 style="text-align:center;">إدارة المطعم</h2>
+        <div class="menu-item active" onclick="nav('live-orders')"><i class="fas fa-bell"></i> الطلبات الحية</div>
+        <div class="menu-item" onclick="nav('dashboard')"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج</div>
+        <div class="menu-item" onclick="nav('manage-products')"><i class="fas fa-boxes"></i> إدارة المنتجات</div>
+        <div class="menu-item" onclick="nav('chat')"><i class="fas fa-comments"></i> الشات</div>
+        <div class="menu-item" onclick="location.reload()" style="margin-top:auto; background:var(--red);"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+
+        <!-- Live Orders -->
+        <div id="live-orders" class="section active">
+            <h3>متابعة الطلبات (Live)</h3>
+            <div style="display: flex; gap: 20px; height: 70vh;">
+                <div style="flex: 1; background: #e9ecef; border-radius: 10px; padding: 10px; overflow-y: auto;">
+                    <div style="background:var(--red); color:white; padding:10px; text-align:center; border-radius:5px;">طلبات جديدة</div>
+                    <div id="newOrdersList"></div>
+                </div>
+                <div style="flex: 1; background: #e9ecef; border-radius: 10px; padding: 10px; overflow-y: auto;">
+                    <div style="background:var(--blue); color:white; padding:10px; text-align:center; border-radius:5px;">جاري التحضير</div>
+                    <div id="processingOrdersList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="section">
+            <div class="dash-container">
+                <div class="dash-card"><div>مبيعات اليوم</div><div id="todaySales" class="stat-val">0 ج</div></div>
+                <div class="dash-card"><div>مبيعات الشهر</div><div id="monthSales" class="stat-val">0 ج</div></div>
+            </div>
+            <h3>سجل الطلبات</h3>
+            <table id="historyTable"><thead><tr><th>#</th><th>الوقت</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <!-- Add Product -->
+        <div id="products" class="section">
+            <div class="form-box">
+                <h3>إضافة منتج جديد</h3>
+                <input type="text" id="prodName" placeholder="اسم المنتج">
+                <input type="text" id="prodImg" placeholder="رابط الصورة">
+                <input type="text" id="prodCat" placeholder="تصنيف (شاورما/برجر..)">
+                <div style="background:#f1f4f9; padding:15px; margin-top:10px;">
+                    <h4>الخيارات والسعر:</h4>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="vBread" placeholder="النوع (سوري..)">
+                        <input type="text" id="vSize" placeholder="الحجم (وسط..)">
+                        <input type="number" id="vPrice" placeholder="السعر">
+                    </div>
+                    <button class="btn-green" id="addVarBtn">+ إضافة خيار</button>
+                    <div id="tempVarsDisplay"></div>
+                </div>
+                <button class="btn-blue" style="width:100%; margin-top:15px;" id="saveProdBtn">حفظ المنتج</button>
+            </div>
+        </div>
+
+        <!-- Manage Products -->
+        <div id="manage-products" class="section">
+            <h3>إدارة المنتجات</h3>
+            <table style="width:100%;"><thead><tr><th>المنتج</th><th>حذف</th></tr></thead><tbody id="manageProdList"></tbody></table>
+        </div>
+
+        <!-- Chat -->
+        <div id="chat" class="section">
+            <div class="chat-layout">
+                <div class="chat-list" id="chatUsersList"></div>
+                <div class="chat-area">
+                    <div style="flex:1; padding:20px; overflow-y:auto;" id="adminChatBox"></div>
+                    <div style="padding:10px; display:flex;"><input id="adminChatInput" style="flex:1;"><button class="btn-blue" onclick="sendAdminMsg()">إرسال</button></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="color:var(--blue); text-align:center;">تفاصيل الطلب</h2>
+            <div id="modalBody"></div>
+            <div id="cancelAlert" style="display:none; background:#fff3cd; padding:10px; margin:10px 0;">
+                <strong>تنبيه:</strong> العميل يطلب الإلغاء! <br> السبب: <span id="cancelReasonText"></span>
+            </div>
+            <div id="modalActions" style="display:flex; justify-content:center; gap:10px; margin-top:20px;"></div>
+            <button onclick="document.getElementById('orderModal').style.display='none'" style="width:100%; margin-top:10px; background:#ccc; color:black;">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const firebaseConfig = { apiKey: "AIzaSyAaf3l8VFttOCruK9jZczBsi1eBwg2U5yE", authDomain: "nagaf-f9b1c.firebaseapp.com", projectId: "nagaf-f9b1c", databaseURL: "https://nagaf-f9b1c-default-rtdb.firebaseio.com" };
-        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
-        onValue(ref(db, 'orders'), (snapshot) => {
-            const data = snapshot.val();
-            const n=document.getElementById('newOrders'), p=document.getElementById('processingOrders'), c=document.getElementById('completedOrders');
-            n.innerHTML=''; p.innerHTML=''; c.innerHTML='';
-            if(!data) { n.innerHTML='<p>لا توجد طلبات</p>'; return; }
-            Object.keys(data).reverse().forEach(k => {
-                const o = data[k];
-                const cartHtml = o.cart ? o.cart.map(i=>`<div>- ${i.item} (${i.price})</div>`).join('') : '';
-                let btns = '';
-                if(o.status==='new') btns=`<button class="btn-accept" onclick="up('${k}','processing')">قبول</button> <button class="btn-reject" onclick="up('${k}','cancelled')">رفض</button>`;
-                else if(o.status==='processing') btns=`<button class="btn-accept" style="background:#18248b" onclick="up('${k}','completed')">تم التسليم</button>`;
-                const card = `<div class="card"><b>${o.name} (${o.total}ج)</b><br><small>${o.phone} - ${o.address}</small><hr>${cartHtml}<br>${btns}</div>`;
-                if(o.status==='new') n.innerHTML+=card; else if(o.status==='processing') p.innerHTML+=card; else if(o.status==='completed') c.innerHTML+=card;
-            });
+        import { getDatabase, ref, push, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaf3l8VFttOCruK9jZczBsi1eBwg2U5yE",
+            authDomain: "nagaf-f9b1c.firebaseapp.com",
+            projectId: "nagaf-f9b1c",
+            databaseURL: "https://nagaf-f9b1c-default-rtdb.firebaseio.com",
+            storageBucket: "nagaf-f9b1c.appspot.com",
+            messagingSenderId: "840123927886",
+            appId: "1:840123927886:web:c6baad7f059cfab461e21f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allOrders = {};
+        let activeChatUser = null;
+        let tempVariants = [];
+
+        // Login
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(u === 'admin' && p === '123') {
+                document.getElementById('loginScreen').style.display = 'none';
+                startSystem();
+            } else alert('خطأ');
         });
-        window.up = function(k, s) { update(ref(db, 'orders/'+k), {status:s}); }
+
+        // Navigation
+        window.nav = function(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startSystem() {
+            // Listen to Orders
+            onValue(ref(db, 'orders'), (snapshot) => {
+                const data = snapshot.val() || {};
+                allOrders = data;
+                renderOrders(data);
+                updateStats(data);
+            });
+
+            // Listen to Products (Manage)
+            onValue(ref(db, 'products'), (snapshot) => {
+                const data = snapshot.val() || {};
+                const list = document.getElementById('manageProdList');
+                list.innerHTML = '';
+                Object.entries(data).forEach(([key, p]) => {
+                    list.innerHTML += `<tr><td>${p.name}</td><td><button class="btn-red" onclick="delProd('${key}')">حذف</button></td></tr>`;
+                });
+            });
+
+            // Listen to Chat
+            onValue(ref(db, 'chats'), (snapshot) => {
+                const data = snapshot.val() || {};
+                renderChatList(data);
+                if(activeChatUser && data[activeChatUser]) {
+                    renderChatBox(data[activeChatUser]);
+                }
+            });
+        }
+
+        function renderOrders(data) {
+            const newDiv = document.getElementById('newOrdersList');
+            const procDiv = document.getElementById('processingOrdersList');
+            newDiv.innerHTML = ''; procDiv.innerHTML = '';
+
+            Object.entries(data).forEach(([key, o]) => {
+                // Sound if new
+                if(o.status === 'pending' && !o.seen) {
+                    document.getElementById('alarmSound').play().catch(()=>{});
+                    update(ref(db, 'orders/'+key), {seen:true});
+                }
+
+                const card = createOrderCard(key, o);
+                if(o.status === 'pending') newDiv.innerHTML += card;
+                else if(o.status === 'processing') procDiv.innerHTML += card;
+            });
+        }
+
+        function createOrderCard(key, o) {
+            let cancelClass = o.cancelRequest ? 'cancel-requested' : '';
+            let cancelBadge = o.cancelRequest ? '<span class="cancel-badge">طلب إلغاء!</span>' : '';
+            return `<div class="order-card ${cancelClass}" onclick="openOrder('${key}')">
+                ${cancelBadge}
+                <h4>#${key.slice(-4)} - ${o.customerName}</h4>
+                <div>${o.address}</div>
+                <div>${o.total} ج</div>
+            </div>`;
+        }
+
+        window.openOrder = function(key) {
+            const o = allOrders[key];
+            if(!o) return;
+
+            document.getElementById('modalBody').innerHTML = `
+                <p><strong>العميل:</strong> ${o.customerName} (${o.phone})</p>
+                <p><strong>العنوان:</strong> ${o.address}</p>
+                <hr><ul>${(o.items||[]).map(i=>`<li>${i.name} (${i.variant.bread}) - ${i.variant.price} ج</li>`).join('')}</ul>
+                <h3 style="color:var(--red)">الإجمالي: ${o.total} ج</h3>
+            `;
+
+            const actions = document.getElementById('modalActions');
+            const alertBox = document.getElementById('cancelAlert');
+
+            if(o.cancelRequest) {
+                alertBox.style.display = 'block';
+                document.getElementById('cancelReasonText').innerText = o.cancelReason;
+                actions.innerHTML = `
+                    <button class="btn-red" onclick="upStatus('${key}', 'cancelled', 'موافقة ع الالغاء')">✔ موافقة</button>
+                    <button class="btn-blue" onclick="rejectCancel('${key}')">✖ رفض (استكمال)</button>
+                `;
+            } else {
+                alertBox.style.display = 'none';
+                if(o.status === 'pending') {
+                    actions.innerHTML = `
+                        <button class="btn-green" onclick="upStatus('${key}', 'processing')">قبول وتجهيز</button>
+                        <button class="btn-red" onclick="upStatus('${key}', 'cancelled', 'رفض المطعم')">رفض الطلب</button>`;
+                } else if(o.status === 'processing') {
+                    actions.innerHTML = `<button class="btn-blue" onclick="upStatus('${key}', 'completed')">إنهاء الطلب</button>`;
+                }
+            }
+            document.getElementById('orderModal').style.display = 'block';
+        }
+
+        window.upStatus = function(key, st, reason='') {
+            update(ref(db, 'orders/'+key), { status: st, cancelRequest: false, rejectionReason: reason });
+            document.getElementById('orderModal').style.display='none';
+        }
+
+        window.rejectCancel = function(key) {
+            update(ref(db, 'orders/'+key), { cancelRequest: false });
+            document.getElementById('orderModal').style.display='none';
+        }
+
+        function updateStats(data) {
+            let today = 0, month = 0, histHTML = '';
+            Object.values(data).forEach(o => {
+                if(o.status === 'completed') {
+                    today += o.total; // تبسيطاً للإحصائيات
+                    month += o.total;
+                }
+                if(o.status === 'completed' || o.status === 'cancelled') {
+                    histHTML += `<tr><td>${o.status}</td><td>${new Date(o.timestamp).toLocaleTimeString()}</td><td>${o.customerName}</td><td>${o.total}</td><td>${o.status}</td><td>${o.rejectionReason||''}</td></tr>`;
+                }
+            });
+            document.getElementById('todaySales').innerText = today + ' ج';
+            document.getElementById('monthSales').innerText = month + ' ج';
+            document.querySelector('#historyTable tbody').innerHTML = histHTML;
+        }
+
+        // --- Products ---
+        document.getElementById('addVarBtn').addEventListener('click', () => {
+            const b = document.getElementById('vBread').value, s = document.getElementById('vSize').value, p = document.getElementById('vPrice').value;
+            if(b && p) {
+                tempVariants.push({bread:b, size:s, price:parseInt(p)});
+                document.getElementById('tempVarsDisplay').innerText = tempVariants.map(v=>`${v.bread}-${v.price}`).join(', ');
+                document.getElementById('vBread').value='';
+            }
+        });
+
+        document.getElementById('saveProdBtn').addEventListener('click', () => {
+            const n = document.getElementById('prodName').value, i = document.getElementById('prodImg').value, c = document.getElementById('prodCat').value;
+            if(n && tempVariants.length) {
+                push(ref(db, 'products'), { name:n, img:i, cat:c, variants:tempVariants, available:true });
+                alert('تم الحفظ'); tempVariants=[]; document.getElementById('prodName').value='';
+            }
+        });
+
+        window.delProd = function(key) { remove(ref(db, 'products/'+key)); }
+
+        // --- Chat ---
+        function renderChatList(data) {
+            const list = document.getElementById('chatUsersList');
+            list.innerHTML = Object.keys(data).map(k => `<div onclick="window.loadChat('${k}')" style="padding:10px; border-bottom:1px solid #ddd; cursor:pointer;">${k}</div>`).join('');
+        }
+        window.loadChat = function(phone) {
+            activeChatUser = phone;
+            onValue(ref(db, 'chats/'+phone), (snap) => {
+                renderChatBox(snap.val() || {});
+            });
+        }
+        function renderChatBox(msgs) {
+            const box = document.getElementById('adminChatBox');
+            box.innerHTML = Object.values(msgs).map(m => `<div style="background:${m.sender==='admin'?'var(--blue)':'#ddd'}; color:${m.sender==='admin'?'white':'black'}; padding:8px; margin:5px; border-radius:5px; align-self:${m.sender==='admin'?'flex-end':'flex-start'}; width:fit-content;">${m.text}</div>`).join('');
+        }
+        window.sendAdminMsg = function() {
+            const t = document.getElementById('adminChatInput').value;
+            if(t && activeChatUser) {
+                push(ref(db, 'chats/'+activeChatUser), {sender:'admin', text:t});
+                document.getElementById('adminChatInput').value='';
+            }
+        }
     </script>
 </body>
 </html>
