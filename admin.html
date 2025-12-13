@@ -47,8 +47,8 @@
         .modal-content { background: white; padding: 25px; border-radius: 10px; width: 500px; max-width: 90%; border-top: 5px solid var(--red); max-height: 80vh; overflow-y: auto; }
         
         /* Stats */
-        .dash-container { display: flex; gap: 20px; margin-bottom: 20px; }
-        .dash-card { flex: 1; background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .dash-container { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .dash-card { flex: 1; min-width: 150px; background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .stat-val { font-size: 2rem; font-weight: bold; color: var(--blue); }
         
         /* Chat */
@@ -62,20 +62,11 @@
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background-color: #f1f1f1; }
 
-        /* Cancel Reason Box Style */
-        .reason-box {
-            background: #ffebee;
-            color: #b71c1c;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 5px;
-            border: 1px solid #ffcdd2;
-        }
+        .reason-box { background: #ffebee; color: #b71c1c; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #ffcdd2; }
     </style>
 </head>
 <body>
 
-    <!-- تمت إضافة loop ليعمل الصوت بشكل متكرر -->
     <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" loop></audio>
     <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
 
@@ -128,18 +119,31 @@
         <div id="dashboard" class="section">
             <h3 id="dashTitle">سجل الطلبات</h3>
             
-            <!-- البحث برقم الهاتف -->
-            <div class="form-box" style="padding:10px; display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchPhoneInput" placeholder="بحث برقم الهاتف..." onkeyup="filterHistory()" style="margin:0;">
+            <!-- البحث والفلتر -->
+            <div class="form-box" style="padding:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="flex:2; display:flex; align-items:center; gap:5px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchPhoneInput" placeholder="بحث برقم الهاتف..." onkeyup="filterHistory()" style="margin:0;">
+                </div>
+                <div style="flex:1;">
+                    <select id="filterStatus" onchange="filterHistory()" style="margin:0; padding:10px;">
+                        <option value="all">كل الحالات</option>
+                        <option value="completed">مكتمل</option>
+                        <option value="cancelled">ملغي</option>
+                        <option value="processing">جاري التحضير</option>
+                    </select>
+                </div>
             </div>
 
+            <!-- إحصائيات -->
             <div class="dash-container admin-only" id="adminStatsBar">
                 <div class="dash-card"><div>مبيعات اليوم</div><div id="todaySales" class="stat-val">0 ج</div></div>
-                <div class="dash-card"><div>مبيعات الشهر</div><div id="monthSales" class="stat-val">0 ج</div></div>
-                <div class="dash-card"><div>إجمالي الأوردرات</div><div id="cancelledCount" class="stat-val" style="color:var(--blue);">0</div></div>
-                <div class="dash-card"><div>الأكثر مبيعاً</div><div id="bestSellerName" style="color:var(--green); font-weight:bold; font-size:1.2rem; margin-top:5px;">-</div><div id="bestSellerCount" style="color:#666; font-size:0.9rem;">0 مرة</div></div>
+                <div class="dash-card"><div>إجمالي الطلبات</div><div id="totalCount" class="stat-val" style="color:var(--blue);">0</div></div>
+                <!-- الكارت الجديد للطلبات الملغية -->
+                <div class="dash-card"><div>أوردرات ملغية</div><div id="cancelledCount" class="stat-val" style="color:var(--red);">0</div></div>
+                <div class="dash-card"><div>الأكثر مبيعاً</div><div id="bestSellerName" style="color:var(--green); font-weight:bold; font-size:1.2rem; margin-top:5px;">-</div></div>
             </div>
+
             <table class="users-table">
                 <thead><tr><th>#</th><th>الوقت</th><th>العميل</th><th>الهاتف</th><th>المبلغ</th><th>الحالة</th><th>الموظف</th></tr></thead>
                 <tbody id="historyTableBody"></tbody>
@@ -222,7 +226,6 @@
             <h2 style="color:var(--blue); text-align:center;">تفاصيل الطلب</h2>
             <div id="modalBody"></div>
             
-            <!-- تنبيه طلب الإلغاء -->
             <div id="cancelAlert" style="display:none; background:#fff3cd; color:#856404; padding:15px; margin:10px 0; border:1px solid #ffeeba; border-radius:5px;">
                 <strong><i class="fas fa-exclamation-triangle"></i> تنبيه:</strong> العميل يطلب إلغاء هذا الأوردر!
                 <div style="margin-top:5px;"><strong>السبب:</strong> <span id="cancelReasonText"></span></div>
@@ -280,24 +283,27 @@
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             event.currentTarget.classList.add('active');
             if(id === 'chat') {
-                document.getElementById('chatNotifyDot').style.display = 'none'; // Hide dot when opening chat
+                document.getElementById('chatNotifyDot').style.display = 'none';
             }
         }
 
         function startSystem() {
-            onValue(ref(db, 'orders'), (s) => { allOrders = s.val() || {}; renderOrders(allOrders); updateStats(allOrders); });
+            onValue(ref(db, 'orders'), (s) => { 
+                allOrders = s.val() || {}; 
+                renderOrders(allOrders); 
+                // نمرر القيم الافتراضية للفلتر
+                updateStats(allOrders); 
+            });
             onValue(ref(db, 'users'), (s) => renderUsers(s.val() || {}));
             onValue(ref(db, 'products'), (s) => renderProdManage(s.val() || {}));
             onValue(ref(db, 'categories'), (s) => populateCats(s.val() || {}));
             onValue(ref(db, 'chats'), (s) => handleChatUpdate(s.val() || {}));
         }
 
-        // --- Orders & Search ---
+        // --- Orders Logic ---
         function renderOrders(data) {
             const n = document.getElementById('newOrdersList'), p = document.getElementById('processingOrdersList');
             n.innerHTML = ''; p.innerHTML = '';
-            
-            // متغير للتحقق اذا كان هناك طلب جديد
             let hasNewOrder = false;
 
             Object.entries(data).forEach(([k,o]) => {
@@ -314,7 +320,6 @@
                 } else if(o.status === 'processing') p.innerHTML += c;
             });
 
-            // تشغيل الصوت بشكل مستمر عند وجود طلب جديد لم يُشاهد
             const alarm = document.getElementById('alarmSound');
             if(hasNewOrder) {
                 alarm.currentTime = 0;
@@ -323,12 +328,11 @@
         }
 
         window.filterHistory = function() {
-            const term = document.getElementById('searchPhoneInput').value;
-            updateStats(allOrders, term);
+            // استدعاء دالة التحديث مع القيم الحالية للفلتر
+            updateStats(allOrders);
         }
 
         window.openOrder = function(k) {
-            // إيقاف الصوت عند فتح الأوردر
             const alarm = document.getElementById('alarmSound');
             alarm.pause();
             alarm.currentTime = 0;
@@ -337,7 +341,6 @@
             const items = (o.items||o.cart||[]).map(i=>`<li>${i.name} ${i.variant?`(${i.variant.bread} ${i.variant.size!='موحد'?'- '+i.variant.size:''})`:''} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
             
             let extraInfo = '';
-            // عرض سبب الإلغاء في المودال اذا كان الطلب ملغي
             if(o.status === 'cancelled') {
                 if(o.adminReason) extraInfo = `<div class="reason-box"><strong>تم الإلغاء/الرفض بواسطة الإدارة:</strong><br>${o.adminReason}</div>`;
                 else if(o.cancelReason) extraInfo = `<div class="reason-box"><strong>تم الإلغاء بطلب من العميل:</strong><br>${o.cancelReason}</div>`;
@@ -366,26 +369,45 @@
         window.rejectOrder = function(k) {
             let reason = prompt("يرجى كتابة سبب الرفض/الإلغاء (سيظهر للعميل وفي السجل):");
             if(reason) {
-                // حفظ السبب في adminReason ليظهر للأدمن لاحقاً وللعميل
                 update(ref(db,'orders/'+k), { status: 'cancelled', adminReason: reason, cancelRequest: false, handledBy:currentUser.name });
                 document.getElementById('orderModal').style.display = 'none';
             }
         }
         window.rejCancelReq = (k) => { update(ref(db,'orders/'+k), {cancelRequest:false}); document.getElementById('orderModal').style.display='none'; }
 
-        function updateStats(data, filterPhone = "") {
+        function updateStats(data) {
+            // 1. تحضير البيانات
             let list = Object.entries(data).map(([k,v]) => ({...v, key: k})).reverse();
-            if(filterPhone) list = list.filter(o => o.phone.includes(filterPhone)); // Search logic
             
-            let comp = list.filter(o => o.status === 'completed');
-            let total = comp.reduce((s,o) => s + (parseInt(o.total)||0), 0);
-            
-            if(document.getElementById('adminStatsBar').style.display !== 'none' && !filterPhone) {
-                document.getElementById('todaySales').innerText = total + ' ج';
-                document.getElementById('monthSales').innerText = total + ' ج'; 
-                document.getElementById('cancelledCount').innerText = list.length;
+            // 2. حساب الإحصائيات العامة (قبل الفلتر) لتبقى ثابتة في الشريط العلوي
+            if(document.getElementById('adminStatsBar').style.display !== 'none') {
+                let comp = list.filter(o => o.status === 'completed');
+                let totalSales = comp.reduce((s,o) => s + (parseInt(o.total)||0), 0);
+                let cancelledCount = list.filter(o => o.status === 'cancelled').length; // حساب عدد الملغي فقط
+                
+                document.getElementById('todaySales').innerText = totalSales + ' ج';
+                document.getElementById('totalCount').innerText = list.length; // كل الطلبات
+                document.getElementById('cancelledCount').innerText = cancelledCount; // الملغي فقط
             }
 
+            // 3. تطبيق الفلاتر على الجدول
+            const term = document.getElementById('searchPhoneInput').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            // فلتر البحث بالهاتف
+            if(term) list = list.filter(o => o.phone.includes(term));
+            
+            // فلتر الحالة
+            if(statusFilter !== 'all') {
+                if(statusFilter === 'processing') {
+                    // يشمل الطلبات الجديدة والتي تحت التجهيز
+                    list = list.filter(o => o.status === 'pending' || o.status === 'new' || o.status === 'processing');
+                } else {
+                    list = list.filter(o => o.status === statusFilter);
+                }
+            }
+
+            // 4. عرض الجدول بعد الفلتر
             document.getElementById('historyTableBody').innerHTML = list.map(o => `
                 <tr class="clickable-row" onclick="openOrder('${o.key}')">
                     <td>#${o.key.slice(-4)}</td>
@@ -398,47 +420,30 @@
                 </tr>`).join('');
         }
 
-        // --- Chat Logic ---
+        // --- Chat & Others (No Change) ---
         function handleChatUpdate(chats) {
             renderChatList(chats);
             if(chatsLoaded) {
                 let hasNew = false;
                 Object.values(chats).forEach(msgs => {
                     const lastMsg = Object.values(msgs).pop();
-                    if(lastMsg && lastMsg.sender === 'customer' && Date.now() - lastMsg.timestamp < 10000) {
-                        hasNew = true;
-                    }
+                    if(lastMsg && lastMsg.sender === 'customer' && Date.now() - lastMsg.timestamp < 10000) hasNew = true;
                 });
-                if(hasNew) {
-                    document.getElementById('msgSound').play().catch(()=>{});
-                    document.getElementById('chatNotifyDot').style.display = 'block';
-                }
-            } else {
-                chatsLoaded = true;
-            }
+                if(hasNew) { document.getElementById('msgSound').play().catch(()=>{}); document.getElementById('chatNotifyDot').style.display = 'block'; }
+            } else chatsLoaded = true;
             if(activeChatUser) loadAdminChat(activeChatUser);
         }
 
         function renderChatList(d) {
             document.getElementById('chatUsersList').innerHTML = Object.keys(d).map(k => {
-                const msgs = Object.values(d[k]);
-                const last = msgs[msgs.length-1];
-                const isNew = last.sender === 'customer' ? 'has-new' : '';
+                const msgs = Object.values(d[k]); const last = msgs[msgs.length-1]; const isNew = last.sender === 'customer' ? 'has-new' : '';
                 return `<div class="chat-user-item ${isNew}" onclick="window.loadChat('${k}')"><span>${k}</span> <small>${last.text.substring(0,10)}...</small></div>`;
             }).join('');
         }
         window.loadChat = (p) => { activeChatUser = p; onValue(ref(db,'chats/'+p), s => { document.getElementById('adminChatBox').innerHTML = Object.values(s.val()||{}).map(m=>`<div style="background:${m.sender==='admin'?'var(--blue)':'#ddd'};color:${m.sender==='admin'?'white':'black'};padding:8px;margin:5px;width:fit-content;border-radius:5px;align-self:${m.sender==='admin'?'flex-end':'flex-start'}">${m.text}</div>`).join(''); }); }
         window.sendAdminMsg = () => { let t=document.getElementById('adminChatInput').value; if(t&&activeChatUser){ push(ref(db,'chats/'+activeChatUser),{sender:'admin',text:t, timestamp:Date.now()}); document.getElementById('adminChatInput').value=''; } };
-
-        // --- Products & Users ---
-        document.getElementById('addVarBtn').addEventListener('click', () => {
-            let b=document.getElementById('vType').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value;
-            if(b && p) { tempVariants.push({bread:b,size:s||'موحد',price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerHTML += `<span class="variant-tag">${b} (${s||'موحد'}) : ${p}ج</span>`; document.getElementById('vType').value=''; document.getElementById('vSize').value=''; document.getElementById('vPrice').value=''; }
-        });
-        document.getElementById('saveProdBtn').addEventListener('click', () => {
-            let n=document.getElementById('prodName').value, i=document.getElementById('prodImg').value, c=document.getElementById('prodCatSelect').value;
-            if(n && tempVariants.length) { push(ref(db,'products'),{name:n,img:i,cat:c,variants:tempVariants,available:true}); alert('تم'); tempVariants=[]; document.getElementById('prodName').value=''; document.getElementById('tempVarsDisplay').innerHTML=''; }
-        });
+        document.getElementById('addVarBtn').addEventListener('click', () => { let b=document.getElementById('vType').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value; if(b && p) { tempVariants.push({bread:b,size:s||'موحد',price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerHTML += `<span class="variant-tag">${b} (${s||'موحد'}) : ${p}ج</span>`; document.getElementById('vType').value=''; document.getElementById('vSize').value=''; document.getElementById('vPrice').value=''; } });
+        document.getElementById('saveProdBtn').addEventListener('click', () => { let n=document.getElementById('prodName').value, i=document.getElementById('prodImg').value, c=document.getElementById('prodCatSelect').value; if(n && tempVariants.length) { push(ref(db,'products'),{name:n,img:i,cat:c,variants:tempVariants,available:true}); alert('تم'); tempVariants=[]; document.getElementById('prodName').value=''; document.getElementById('tempVarsDisplay').innerHTML=''; } });
         document.getElementById('addCatBtn').addEventListener('click', () => { let n=document.getElementById('catMain').value; if(n){ push(ref(db,'categories'),{name:n}); alert('تم'); } });
         function populateCats(data) { const s=document.getElementById('prodCatSelect'); s.innerHTML='<option value="" disabled selected>اختر</option>'; Object.values(data).forEach(c=>s.innerHTML+=`<option value="${c.name}">${c.name}</option>`); }
         document.getElementById('addUserBtn').addEventListener('click', () => { let u=document.getElementById('newUName').value, p=document.getElementById('newUPass').value, r=document.getElementById('newURole').value; if(u&&p){ push(ref(db,'users'),{name:u,pass:p,role:r}); alert('تم'); }});
