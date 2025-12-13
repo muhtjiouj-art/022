@@ -99,7 +99,7 @@
             <i class="fas fa-comments"></i> الشات 
             <span class="notification-dot" id="chatNotifyDot"></span>
         </div>
-        <div class="menu-item" onclick="location.reload()" style="margin-top:auto; background:var(--red);"><i class="fas fa-sign-out-alt"></i> خروج</div>
+        <div class="menu-item" onclick="logoutStaff()" style="margin-top:auto; background:var(--red);"><i class="fas fa-sign-out-alt"></i> خروج</div>
     </div>
 
     <div class="main">
@@ -258,13 +258,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let currentUser = null;
+        // --- NEW: Load user from Storage immediately ---
+        let currentUser = JSON.parse(localStorage.getItem('nagaf_staff_user'));
         let activeChatUser = null;
         let tempVariants = [];
         let allOrders = {};
         let allUsersData = {};
         let chatsLoaded = false;
         let editingUserKey = null;
+
+        // If user exists in storage, skip login
+        if(currentUser) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminNameDisplay').innerText = currentUser.name;
+            if(currentUser.role === 'receiver') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                document.getElementById('adminStatsBar').style.display = 'none';
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('adminStatsBar').style.display = 'flex';
+            }
+            startSystem();
+        }
 
         // Login
         document.getElementById('loginBtn').addEventListener('click', () => {
@@ -279,6 +294,9 @@
                 
                 if(found) {
                     currentUser = found;
+                    // --- NEW: Save to Storage ---
+                    localStorage.setItem('nagaf_staff_user', JSON.stringify(found));
+
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('adminNameDisplay').innerText = found.name;
                     if(found.role === 'receiver') {
@@ -292,6 +310,12 @@
                 } else alert('خطأ في البيانات');
             }, {onlyOnce: true});
         });
+
+        // --- NEW: Logout Function ---
+        window.logoutStaff = function() {
+            localStorage.removeItem('nagaf_staff_user');
+            location.reload();
+        }
 
         window.nav = function(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -438,7 +462,7 @@
                 </tr>`).join('');
         }
 
-        // --- Reports Logic (تم التفعيل) ---
+        // --- Reports Logic ---
         window.generateReport = function() {
             const m = document.getElementById('reportMonthInput').value; // yyyy-mm
             if(!m) return alert("الرجاء اختيار الشهر أولاً");
@@ -447,10 +471,8 @@
             const reportData = {};
 
             Object.values(allOrders).forEach(o => {
-                // نحسب فقط الطلبات المكتملة
                 if(o.status === 'completed') {
                     const d = new Date(o.timestamp);
-                    // مقارنة السنة والشهر (نضيف 1 للشهر لأن getMonth يبدأ من 0)
                     if(d.getFullYear() == year && (d.getMonth() + 1) == month) {
                         const emp = o.handledBy || 'غير محدد';
                         if(!reportData[emp]) reportData[emp] = { count: 0, total: 0 };
@@ -476,7 +498,7 @@
             }
         }
 
-        // --- User Management (تم إضافة التعديل) ---
+        // --- User Management ---
         document.getElementById('addUserBtn').addEventListener('click', () => { 
             let u=document.getElementById('newUName').value, p=document.getElementById('newUPass').value, r=document.getElementById('newURole').value; 
             if(u&&p){ push(ref(db,'users'),{name:u,pass:p,role:r}); alert('تمت الإضافة'); document.getElementById('newUName').value=''; document.getElementById('newUPass').value=''; }
@@ -502,7 +524,6 @@
 
         window.delUser=(k)=>confirm('هل أنت متأكد من الحذف؟')&&remove(ref(db,'users/'+k));
 
-        // دوال التعديل الجديدة
         window.openEditUser = function(key) {
             const u = allUsersData[key];
             if(!u) return;
