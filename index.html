@@ -7,11 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ... نفس الستايل السابق ... */
         :root { --blue: #1a237e; --dark-blue: #0d1b6e; --red: #b71c1c; --white: #ffffff; --bg-gray: #f4f6f8; --text: #333; }
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', sans-serif; margin: 0; background: var(--bg-gray); }
+        body { font-family: 'Cairo', sans-serif; margin: 0; background: var(--bg-gray); padding-bottom: 0; }
         header { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: var(--white); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); height: 70px; }
         .logo-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; background: white; }
+        .logo-text { font-weight: 700; font-size: 1.1rem; display: none; } @media (min-width: 400px) { .logo-text { display: block; } }
         .user-controls { display: flex; gap: 15px; align-items: center; }
         .icon-wrap { position: relative; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .badge { position: absolute; top: 0; right: 0; background: var(--red); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid var(--blue); }
@@ -26,7 +28,6 @@
         .card img { width: 100%; height: 130px; object-fit: cover; }
         .card-body { padding: 12px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .price-tag { font-size: 0.9rem; color: var(--red); font-weight: 700; margin-bottom: 10px; }
-        .offer-desc { font-size: 0.8rem; color: #666; margin-bottom: 5px; height: 40px; overflow: hidden; } /* وصف العرض */
         .btn-add { background: var(--blue); color: white; border: none; padding: 8px; width: 100%; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: bold; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2500; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 380px; position: relative; animation: popUp 0.3s ease; }
@@ -34,12 +35,35 @@
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 1.5rem; color: #aaa; cursor: pointer; }
         .custom-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Cairo'; background: #fafafa; font-size: 1rem; }
         .btn-main { background: var(--blue); color: white; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-danger { background: var(--red); color: white; padding:10px; width:100%; border:none; border-radius:10px; font-weight: 700; margin-top:5px; }
         footer { background-color: var(--dark-blue); color: white; text-align: center; padding: 25px 0 30px 0; margin-top: 40px; border-top: 4px solid var(--red); }
         .footer-hotline { font-size: 2rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .footer-icons { display: flex; justify-content: center; gap: 25px; margin-bottom: 15px; }
         .footer-icons a { color: white; font-size: 2rem; }
         .chat-float { position: fixed; bottom: 30px; left: 20px; background: var(--red); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.6rem; z-index: 2000; cursor: pointer; border: 2px solid white; }
         .chat-window { display: none; position: fixed; bottom: 100px; left: 20px; width: 300px; height: 400px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); z-index: 2000; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
+        
+        /* تحسين شكل القائمة للموبايل */
+        .option-item {
+            padding: 15px; 
+            margin-bottom: 8px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid #eee;
+            transition: 0.2s;
+        }
+        .option-item.selected {
+            border: 2px solid var(--blue);
+            background: #f0f7ff;
+        }
+        .option-details {
+            font-size: 0.95rem;
+            color: #333;
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +75,10 @@
             <div id="loginBtnNav" class="profile-btn" onclick="openAuth()"><i class="fas fa-sign-in-alt"></i></div>
             <div id="userProfileNav" class="profile-btn" style="display:none;" onclick="openProfile()"><i class="fas fa-user"></i></div>
         </div>
-        <div class="logo-container"><img src="logo.png" alt="Nagaf" class="logo-img" onerror="this.src='https://via.placeholder.com/50'"></div>
+        <div class="logo-container">
+            <img src="logo.png" alt="Nagaf" class="logo-img" onerror="this.src='https://via.placeholder.com/50'">
+            <div class="logo-text">سلسلة مطاعم نجف</div>
+        </div>
     </header>
     <div class="hero"><div><h1>أصل الأكل المصري</h1><p>أطلب واستمتع بالطعم الأصلي</p></div></div>
     <div class="category-nav" id="categoryNav"></div>
@@ -61,6 +88,7 @@
         <div class="footer-icons"><a href="https://wa.me/201119008397" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a></div>
         <div class="footer-copy">نجف | 2025</div>
     </footer>
+    
     <!-- Modals -->
     <div class="modal" id="authModal">
         <div class="modal-content">
@@ -78,7 +106,7 @@
             <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
             <div style="width:80px; height:80px; background:#f0f0f0; border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:var(--blue);"><i class="fas fa-user-circle"></i></div>
             <h3 id="profName" style="margin:5px 0;"></h3><p id="profPhone" style="color:#666; margin:5px 0;"></p><p id="profAddress" style="color:#666; font-size:0.9rem; margin-bottom:20px;"></p>
-            <button class="btn-danger" style="background:var(--red);color:white;width:100%;padding:10px;border:none;border-radius:10px;font-weight:700;" onclick="logout()">تسجيل الخروج</button>
+            <button class="btn-danger" onclick="logout()">تسجيل الخروج</button>
         </div>
     </div>
     <div class="modal" id="successModal">
@@ -88,15 +116,19 @@
             <button class="btn-main" onclick="closeSuccessModal()">حسناً</button>
         </div>
     </div>
+    
+    <!-- مودال الخيارات (المحسن للعروض) -->
     <div class="modal" id="optionsModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('optionsModal')">&times;</span>
             <h3 id="optProdName" style="color:var(--blue); text-align:center; margin-top:0;"></h3>
-            <div id="variantsList" style="margin:15px 0; max-height:200px; overflow-y:auto;"></div>
-            <h4 style="text-align:center; margin:10px 0;">السعر: <span id="selectedPrice" style="color:var(--red); font-size:1.2rem;">0</span> ج</h4>
+            <p style="text-align:center; font-size:0.9rem; color:#666; margin-bottom:10px;">اختر المناسب لك:</p>
+            <div id="variantsList" style="margin:10px 0; max-height:250px; overflow-y:auto;"></div>
+            <h4 style="text-align:center; margin:15px 0; font-size:1.2rem;">السعر: <span id="selectedPrice" style="color:var(--red); font-weight:bold;">0</span> ج</h4>
             <button class="btn-main" onclick="confirmAddToCart()">أضف للسلة</button>
         </div>
     </div>
+
     <div class="modal" id="cartModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('cartModal')">&times;</span>
@@ -131,8 +163,6 @@
         onValue(ref(db, 'categories'), (s) => { 
             const nav=document.getElementById('categoryNav'); nav.innerHTML='<button class="cat-btn active" onclick="window.filterCat(\'all\',this)">الكل</button>';
             Object.values(s.val()||{}).forEach(c=>nav.innerHTML+=`<button class="cat-btn" onclick="window.filterCat('${c.name}',this)">${c.name}</button>`);
-            // إضافة زر العروض تلقائياً
-            nav.innerHTML += `<button class="cat-btn" onclick="window.filterCat('عروض',this)">العروض</button>`;
         });
 
         window.filterCat = function(c,b) { document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); loadProducts(c); }
@@ -140,17 +170,12 @@
             const g=document.getElementById('productGrid'); g.innerHTML='';
             products.forEach(p=>{
                 if((c==='all'||p.cat===c)&&p.available){
-                    // عرض وصف العرض لو موجود
-                    const desc = p.variants && p.variants[0] && p.variants[0].bread ? p.variants[0].bread : '';
-                    const isOffer = p.cat === 'عروض';
                     const minPrice = p.variants?Math.min(...p.variants.map(v=>v.price)):0;
-                    
                     g.innerHTML+=`<div class="card" onclick="window.openOptions('${p.name}')">
                         <img src="${p.img}" alt="${p.name}">
                         <div class="card-body">
                             <h3>${p.name}</h3>
-                            ${isOffer ? `<div class="offer-desc">${desc}</div>` : ''}
-                            <div class="price-tag">${isOffer ? '' : 'يبدأ من'} ${minPrice} ج</div>
+                            <div class="price-tag">يبدأ من ${minPrice} ج</div>
                             <button class="btn-add">أضف للسلة</button>
                         </div>
                     </div>`;
@@ -161,7 +186,6 @@
         if(currentUser) setupUserUI();
         window.openAuth=()=>document.getElementById('authModal').style.display='flex';
         window.openProfile=()=>{ if(!currentUser){openAuth();return;} document.getElementById('profName').innerText=currentUser.name; document.getElementById('profPhone').innerText=currentUser.phone; document.getElementById('profAddress').innerText=currentUser.address; document.getElementById('profileModal').style.display='flex'; }
-        window.closeModal=(id)=>document.getElementById('id').style.display='none'; // This line had a bug in id reference, fixing below
         window.closeModal=function(id){document.getElementById(id).style.display='none';}
         window.logout=()=>{ localStorage.removeItem('nagaf_user_info'); location.reload(); }
         window.handleRegister=()=>{
@@ -170,18 +194,32 @@
         }
         function setupUserUI(){ document.getElementById('loginBtnNav').style.display='none'; document.getElementById('userProfileNav').style.display='flex'; }
 
+        // --- Improved Option Selection ---
         window.openOptions=function(n){
             selectedProductTemp=products.find(p=>p.name===n); document.getElementById('optProdName').innerText=n;
             const l=document.getElementById('variantsList'); l.innerHTML='';
             selectedProductTemp.variants.forEach((v,i)=>{
-                l.innerHTML+=`<div onclick="selectVar(${i},this)" style="padding:12px;margin-bottom:8px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;border:1px solid #ddd;"><span>${v.bread} - ${v.size}</span><span style="font-weight:bold;color:var(--red)">${v.price} ج</span></div>`;
+                let sizeTxt = v.size && v.size !== 'موحد' ? ` (${v.size})` : '';
+                l.innerHTML+=`
+                <div class="option-item" onclick="selectVar(${i},this)">
+                    <div class="option-details">
+                        <b>${v.bread}${sizeTxt}</b>
+                    </div>
+                    <div style="font-weight:bold;color:var(--red)">${v.price} ج</div>
+                </div>`;
             });
             if(l.children[0]) window.selectVar(0,l.children[0]);
             document.getElementById('optionsModal').style.display='flex';
         }
-        window.selectVar=function(i,el){ Array.from(el.parentElement.children).forEach(c=>{c.style.border='1px solid #ddd';c.style.background='white'}); el.style.border='2px solid var(--blue)'; el.style.background='#eef'; selectedVariantTemp=selectedProductTemp.variants[i]; document.getElementById('selectedPrice').innerText=selectedVariantTemp.price; }
+        window.selectVar=function(i,el){ 
+            document.querySelectorAll('.option-item').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedVariantTemp=selectedProductTemp.variants[i]; 
+            document.getElementById('selectedPrice').innerText=selectedVariantTemp.price; 
+        }
         window.confirmAddToCart=function(){ cart.push({...selectedProductTemp,variant:selectedVariantTemp}); updateCart(); closeModal('optionsModal'); }
-        function updateCart(){ document.getElementById('cartCount').innerText=cart.length; const d=document.getElementById('cartItems'); let t=0; d.innerHTML=cart.map((i,x)=>{t+=i.variant.price; return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;"><div><b>${i.name}</b><br><small>${i.variant.bread}</small></div><div>${i.variant.price}ج <i class="fas fa-trash" style="color:red" onclick="window.remItem(${x})"></i></div></div>`}).join(''); document.getElementById('cartTotal').innerText=t; }
+        
+        function updateCart(){ document.getElementById('cartCount').innerText=cart.length; const d=document.getElementById('cartItems'); let t=0; d.innerHTML=cart.map((i,x)=>{t+=i.variant.price; return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;"><div><b>${i.name}</b><br><small>${i.variant.bread} ${i.variant.size !== 'موحد' ? '- '+i.variant.size : ''}</small></div><div>${i.variant.price}ج <i class="fas fa-trash" style="color:red" onclick="window.remItem(${x})"></i></div></div>`}).join(''); document.getElementById('cartTotal').innerText=t; }
         window.remItem=function(i){ cart.splice(i,1); updateCart(); }
         window.openCart=function(){ document.getElementById('cartModal').style.display='flex'; }
         window.submitOrder=function(){
