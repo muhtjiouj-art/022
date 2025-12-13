@@ -183,10 +183,30 @@
                 </div>
                 <button class="btn-blue" style="width:100%" id="saveProdBtn">حفظ</button>
             </div>
-            <div class="form-box">
-                <h3>إضافة تصنيف</h3>
-                <input type="text" id="catMain" placeholder="اسم التصنيف">
-                <button class="btn-blue" id="addCatBtn">إضافة</button>
+
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <!-- إضافة تصنيف -->
+                <div class="form-box" style="flex: 1;">
+                    <h3>إضافة تصنيف</h3>
+                    <input type="text" id="catMain" placeholder="اسم التصنيف">
+                    <button class="btn-blue" id="addCatBtn">إضافة</button>
+                </div>
+
+                <!-- إدارة التصنيفات (القسم الجديد) -->
+                <div class="form-box" style="flex: 1;">
+                    <h3>إدارة التصنيفات الحالية</h3>
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>اسم التصنيف</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageCatsList">
+                            <!-- سيتم تعبئة الجدول تلقائياً -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -338,7 +358,14 @@
                 renderUsers(allUsersData);
             });
             onValue(ref(db, 'products'), (s) => renderProdManage(s.val() || {}));
-            onValue(ref(db, 'categories'), (s) => populateCats(s.val() || {}));
+            
+            // --- تعديل: قراءة التصنيفات للملء وللإدارة ---
+            onValue(ref(db, 'categories'), (s) => {
+                const cats = s.val() || {};
+                populateCats(cats);      // يملأ القائمة المنسدلة
+                renderCatManage(cats);   // يملأ جدول الإدارة (للحذف والتعديل)
+            });
+
             onValue(ref(db, 'chats'), (s) => handleChatUpdate(s.val() || {}));
         }
 
@@ -577,7 +604,52 @@
         document.getElementById('addVarBtn').addEventListener('click', () => { let b=document.getElementById('vType').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value; if(b && p) { tempVariants.push({bread:b,size:s||'موحد',price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerHTML += `<span class="variant-tag">${b} (${s||'موحد'}) : ${p}ج</span>`; document.getElementById('vType').value=''; document.getElementById('vSize').value=''; document.getElementById('vPrice').value=''; } });
         document.getElementById('saveProdBtn').addEventListener('click', () => { let n=document.getElementById('prodName').value, i=document.getElementById('prodImg').value, c=document.getElementById('prodCatSelect').value; if(n && tempVariants.length) { push(ref(db,'products'),{name:n,img:i,cat:c,variants:tempVariants,available:true}); alert('تم'); tempVariants=[]; document.getElementById('prodName').value=''; document.getElementById('tempVarsDisplay').innerHTML=''; } });
         document.getElementById('addCatBtn').addEventListener('click', () => { let n=document.getElementById('catMain').value; if(n){ push(ref(db,'categories'),{name:n}); alert('تم'); } });
-        function populateCats(data) { const s=document.getElementById('prodCatSelect'); s.innerHTML='<option value="" disabled selected>اختر</option>'; Object.values(data).forEach(c=>s.innerHTML+=`<option value="${c.name}">${c.name}</option>`); }
+        
+        // --- دالة ملء القائمة المنسدلة ---
+        function populateCats(data) { 
+            const s=document.getElementById('prodCatSelect'); 
+            s.innerHTML='<option value="" disabled selected>اختر</option>'; 
+            Object.values(data).forEach(c=>s.innerHTML+=`<option value="${c.name}">${c.name}</option>`); 
+        }
+
+        // --- دوال إدارة التصنيفات الجديدة ---
+        function renderCatManage(data) {
+            const tbody = document.getElementById('manageCatsList');
+            tbody.innerHTML = '';
+            if(!data || Object.keys(data).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2">لا توجد تصنيفات</td></tr>';
+                return;
+            }
+            Object.entries(data).forEach(([key, cat]) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${cat.name}</td>
+                        <td>
+                            <button class="btn-warning" onclick="window.editCat('${key}', '${cat.name}')">تعديل</button>
+                            <button class="btn-red" onclick="window.delCat('${key}')">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.delCat = function(key) {
+            if(confirm('هل أنت متأكد من حذف هذا التصنيف؟')) {
+                remove(ref(db, 'categories/' + key))
+                .then(() => alert('تم الحذف'))
+                .catch(err => alert('خطأ: ' + err));
+            }
+        }
+
+        window.editCat = function(key, oldName) {
+            let newName = prompt("اسم التصنيف الجديد:", oldName);
+            if(newName && newName !== oldName) {
+                update(ref(db, 'categories/' + key), { name: newName })
+                .then(() => alert('تم التعديل'))
+                .catch(err => alert('خطأ: ' + err));
+            }
+        }
+
         function renderProdManage(data) { document.getElementById('manageProdList').innerHTML=Object.entries(data).map(([k,p])=>`<tr><td>${p.name}</td><td>${p.available?'متاح':'مغلق'}</td><td><button class="btn-blue" onclick="window.tog('${k}',${p.available})">تغيير</button><button class="btn-red" onclick="window.delP('${k}')">حذف</button></td></tr>`).join(''); }
         window.tog=(k,s)=>update(ref(db,'products/'+k),{available:!s}); window.delP=(k)=>confirm('حذف؟')&&remove(ref(db,'products/'+k));
     </script>
