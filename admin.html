@@ -63,6 +63,9 @@
         .clickable-row:hover { background-color: #f1f1f1; }
 
         .reason-box { background: #ffebee; color: #b71c1c; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #ffcdd2; }
+        
+        /* Item Note Style */
+        .item-note { color: #d32f2f; font-weight: bold; display: block; margin-top: 4px; font-size: 0.95rem; background: #fff5f5; padding: 2px 5px; border-radius: 4px; width: fit-content; }
     </style>
 </head>
 <body>
@@ -328,17 +331,32 @@
         }
 
         window.filterHistory = function() {
-            // استدعاء دالة التحديث مع القيم الحالية للفلتر
             updateStats(allOrders);
         }
 
+        // === تعديل دالة عرض التفاصيل لإظهار الملاحظات ===
         window.openOrder = function(k) {
             const alarm = document.getElementById('alarmSound');
             alarm.pause();
             alarm.currentTime = 0;
 
             const o = allOrders[k]; if(!o) return;
-            const items = (o.items||o.cart||[]).map(i=>`<li>${i.name} ${i.variant?`(${i.variant.bread} ${i.variant.size!='موحد'?'- '+i.variant.size:''})`:''} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
+            
+            // هنا التعديل: التحقق من وجود ملاحظة وعرضها بشكل مميز
+            const items = (o.items || o.cart || []).map(i => {
+                let noteHtml = '';
+                if(i.note && i.note.trim() !== '') {
+                    noteHtml = `<span class="item-note">⚠️ ${i.note}</span>`;
+                }
+                
+                return `<li>
+                    <div style="margin-bottom:5px;">
+                        ${i.name} ${i.variant ? `(${i.variant.bread} ${i.variant.size != 'موحد' ? '- ' + i.variant.size : ''})` : ''} 
+                        - <strong>${i.variant ? i.variant.price : i.price} ج</strong>
+                    </div>
+                    ${noteHtml}
+                </li>`;
+            }).join('');
             
             let extraInfo = '';
             if(o.status === 'cancelled') {
@@ -346,7 +364,7 @@
                 else if(o.cancelReason) extraInfo = `<div class="reason-box"><strong>تم الإلغاء بطلب من العميل:</strong><br>${o.cancelReason}</div>`;
             }
 
-            document.getElementById('modalBody').innerHTML = `<p><strong>${o.customerName}</strong> (${o.phone})</p><p>${o.address}</p><hr><ul>${items}</ul>${extraInfo}<h3 style="color:var(--red)">${o.total} ج</h3>`;
+            document.getElementById('modalBody').innerHTML = `<p><strong>${o.customerName}</strong> (${o.phone})</p><p>${o.address}</p><hr><ul style="padding-right:20px; line-height:1.8;">${items}</ul>${extraInfo}<h3 style="color:var(--red)">${o.total} ج</h3>`;
             
             const act = document.getElementById('modalActions');
             const alertBox = document.getElementById('cancelAlert');
@@ -379,35 +397,32 @@
             // 1. تحضير البيانات
             let list = Object.entries(data).map(([k,v]) => ({...v, key: k})).reverse();
             
-            // 2. حساب الإحصائيات العامة (قبل الفلتر) لتبقى ثابتة في الشريط العلوي
+            // 2. حساب الإحصائيات العامة (قبل الفلتر)
             if(document.getElementById('adminStatsBar').style.display !== 'none') {
                 let comp = list.filter(o => o.status === 'completed');
                 let totalSales = comp.reduce((s,o) => s + (parseInt(o.total)||0), 0);
-                let cancelledCount = list.filter(o => o.status === 'cancelled').length; // حساب عدد الملغي فقط
+                let cancelledCount = list.filter(o => o.status === 'cancelled').length;
                 
                 document.getElementById('todaySales').innerText = totalSales + ' ج';
-                document.getElementById('totalCount').innerText = list.length; // كل الطلبات
-                document.getElementById('cancelledCount').innerText = cancelledCount; // الملغي فقط
+                document.getElementById('totalCount').innerText = list.length; 
+                document.getElementById('cancelledCount').innerText = cancelledCount; 
             }
 
-            // 3. تطبيق الفلاتر على الجدول
+            // 3. تطبيق الفلاتر
             const term = document.getElementById('searchPhoneInput').value;
             const statusFilter = document.getElementById('filterStatus').value;
 
-            // فلتر البحث بالهاتف
             if(term) list = list.filter(o => o.phone.includes(term));
             
-            // فلتر الحالة
             if(statusFilter !== 'all') {
                 if(statusFilter === 'processing') {
-                    // يشمل الطلبات الجديدة والتي تحت التجهيز
                     list = list.filter(o => o.status === 'pending' || o.status === 'new' || o.status === 'processing');
                 } else {
                     list = list.filter(o => o.status === statusFilter);
                 }
             }
 
-            // 4. عرض الجدول بعد الفلتر
+            // 4. عرض الجدول
             document.getElementById('historyTableBody').innerHTML = list.map(o => `
                 <tr class="clickable-row" onclick="openOrder('${o.key}')">
                     <td>#${o.key.slice(-4)}</td>
