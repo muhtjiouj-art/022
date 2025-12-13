@@ -3,47 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم نجف - الإدارة</title>
+    <title>لوحة تحكم نجف - الإدارة (Online)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --blue: #18248b; --dark-blue: #0d1b6e; --red: #b71c1c; --white: #ffffff; --gray: #f0f2f5; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; background: var(--gray); height: 100vh; overflow: hidden; }
+        /* --- نفس التصميم الكامل --- */
+        :root { --blue: #18248b; --red: #8c0104; --white: #ffffff; --green: #27ae60; --gray: #f0f2f5; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; background: var(--gray); height: 100vh; overflow: hidden; }
 
-        /* Login Screen */
         #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--blue); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
         #loginScreen input { padding: 10px; width: 250px; margin: 10px; border-radius: 5px; border: none; }
         #loginScreen button { padding: 10px 30px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* Sidebar */
         .sidebar { width: 260px; background: var(--blue); color: white; padding: 20px 10px; display: flex; flex-direction: column; border-left: 5px solid var(--red); }
         .menu-item { padding: 12px; margin: 5px 0; cursor: pointer; border-radius: 5px; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); border-right: 4px solid var(--red); }
-        
-        /* Main Content */
         .main { flex: 1; padding: 20px; overflow-y: auto; }
         .section { display: none; animation: fadeIn 0.5s; }
         .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* General Forms */
         .form-box { background: white; padding: 25px; border-radius: 10px; max-width: 900px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        label { font-weight: bold; color: #555; }
+        label { font-weight: bold; color: #555; margin-bottom: 5px; display: block; }
 
-        /* --- تصميم جدول الموظفين (مطابق للصورة) --- */
-        .users-table { width: 100%; border-collapse: collapse; background: white; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .users-table thead tr { background-color: #1a237e; color: white; } /* الأزرق الغامق */
-        .users-table th, .users-table td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
-        .users-table th { font-size: 1rem; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background-color: #1a237e; color: white; font-size: 1rem; font-weight: bold; }
         
-        /* الأزرار */
         .btn-blue { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-green { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-red { background: #b71c1c; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-red:hover { background: #900; }
-        .text-locked { color: #555; font-weight: bold; } /* لا يمكن حذفه */
+        .text-locked { color: #555; font-weight: bold; }
 
-        /* باقي التنسيقات القديمة */
         .order-card { background: white; padding: 15px; border-radius: 5px; margin-bottom: 10px; border-left: 5px solid var(--blue); cursor: pointer; position: relative; transition: 0.2s; }
         .order-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .cancel-requested { border-left-color: orange !important; animation: flashOrange 1.5s infinite; }
@@ -56,7 +48,6 @@
         .dash-card { flex: 1; background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .stat-val { font-size: 2rem; font-weight: bold; color: var(--blue); }
         
-        /* Chat Layout */
         .chat-layout { display: flex; height: 70vh; gap: 20px; }
         .chat-list { width: 250px; background: white; overflow-y: auto; border: 1px solid #ddd; }
         .chat-area { flex: 1; background: white; display: flex; flex-direction: column; border: 1px solid #ddd; }
@@ -108,21 +99,21 @@
         <!-- Users (قسم الموظفين - التصميم الجديد) -->
         <div id="users" class="section">
             <div class="form-box">
-                <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">إدارة الموظفين</h3>
+                <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; text-align: right;">إدارة الموظفين</h3>
                 
-                <label>اسم الموظف</label>
-                <input type="text" id="newUName" placeholder="">
+                <label for="newUName">اسم الموظف</label>
+                <input type="text" id="newUName" placeholder="مثال: أحمد سيد">
                 
-                <label>كلمة المرور</label>
-                <input type="password" id="newUPass" placeholder="">
+                <label for="newUPass">كلمة المرور</label>
+                <input type="password" id="newUPass" placeholder="***********">
                 
-                <label>الصلاحية</label>
+                <label for="newURole">الصلاحية</label>
                 <select id="newURole">
                     <option value="admin">مدير (Admin)</option>
                     <option value="receiver">متلقي طلبات</option>
                 </select>
                 
-                <div style="text-align: left;">
+                <div style="text-align: left; margin-top: 15px;">
                     <button class="btn-blue" id="addUserBtn">إضافة موظف</button>
                 </div>
             </div>
@@ -172,7 +163,7 @@
                 <h3>إضافة منتج</h3>
                 <input type="text" id="prodName" placeholder="اسم المنتج">
                 <input type="text" id="prodImg" placeholder="رابط الصورة">
-                <input type="text" id="prodCatSelect" placeholder="التصنيف (شاورما..)">
+                <select id="prodCatSelect"></select> <!-- تم تغييرها لـ select -->
                 <div style="background:#f9f9f9; padding:10px; margin:10px 0;">
                     <label>الخيارات (مثال: سوري - وسط - 50)</label>
                     <div style="display:flex; gap:5px;">
@@ -245,29 +236,47 @@
         let tempVariants = [];
         let allOrders = {};
 
-        // --- Auth ---
+        // --- Auth Logic (Improved) ---
         document.getElementById('loginBtn').addEventListener('click', () => {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             
+            console.log('Attempting login for:', u); // debugging
+            
+            // تحقق من المستخدمين المسجلين في القاعدة
             onValue(ref(db, 'users'), (snap) => {
-                const users = snap.val() || {};
-                let found = null;
-                // الأدمن الافتراضي
-                if(u === 'admin' && p === '123') found = {name: 'admin', role: 'admin'};
+                const usersData = snap.val() || {};
+                console.log('Firebase Users Data:', usersData); // debugging
+                let foundUser = null;
                 
-                if(!found) {
-                    Object.values(users).forEach(user => {
-                        if(user.name === u && user.pass === p) found = user;
-                    });
+                // الأدمن الافتراضي (Hardcoded Admin)
+                if(u === 'admin' && p === '123') {
+                    foundUser = {name: 'admin', role: 'admin'};
+                    console.log('Logged in as hardcoded admin.'); // debugging
+                }
+                
+                // البحث في الموظفين من Firebase
+                if(!foundUser) {
+                    // Iterate through Firebase users to find a match
+                    for (const key in usersData) {
+                        const user = usersData[key];
+                        if (user.name === u && user.pass === p) {
+                            foundUser = { ...user, firebaseKey: key }; // Store key for deletion later if needed
+                            console.log('Found user in Firebase:', foundUser); // debugging
+                            break;
+                        }
+                    }
                 }
 
-                if(found) {
-                    currentUser = found;
+                if(foundUser) {
+                    currentUser = foundUser;
                     document.getElementById('loginScreen').style.display = 'none';
                     startSystem();
-                } else alert('بيانات خاطئة');
-            }, {onlyOnce: true});
+                } else {
+                    alert('بيانات الدخول غير صحيحة');
+                    console.log('Login failed: No matching user found.'); // debugging
+                }
+            }, {onlyOnce: true}); // onlyOnce: true ensures fresh data for each login attempt
         });
 
         // --- Navigation ---
@@ -276,168 +285,142 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // --- System Start ---
+        // --- System Start (Realtime Listeners) ---
         function startSystem() {
-            // Orders
+            // 1. مراقبة الطلبات
             onValue(ref(db, 'orders'), (snapshot) => {
                 const data = snapshot.val() || {};
                 allOrders = data;
                 renderOrders(data);
                 updateStats(data);
             });
-            // Users (الموظفين)
+
+            // 2. مراقبة المنتجات
+            onValue(ref(db, 'products'), (snapshot) => {
+                renderProdManage(snapshot.val() || {});
+            });
+
+            // 3. مراقبة التصنيفات
+            onValue(ref(db, 'categories'), (snapshot) => {
+                populateCats(snapshot.val() || {});
+            });
+
+            // 4. مراقبة الموظفين
             onValue(ref(db, 'users'), (snapshot) => {
                 renderUsers(snapshot.val() || {});
             });
-            // Products
-            onValue(ref(db, 'products'), (snapshot) => renderProdManage(snapshot.val() || {}));
-            // Chat
+
+            // 5. مراقبة الشات
             onValue(ref(db, 'chats'), (snapshot) => {
                 renderChatList(snapshot.val() || {});
                 if(activeChatUser) loadAdminChat(activeChatUser);
             });
         }
 
-        // --- Users (إدارة الموظفين) ---
-        document.getElementById('addUserBtn').addEventListener('click', () => {
-            let u = document.getElementById('newUName').value;
-            let p = document.getElementById('newUPass').value;
-            let r = document.getElementById('newURole').value;
-            if(u && p) {
-                push(ref(db, 'users'), {name:u, pass:p, role:r});
-                document.getElementById('newUName').value=''; 
-                document.getElementById('newUPass').value='';
-            }
-        });
-
-        function renderUsers(data) {
-            const tbody = document.getElementById('usersListBody');
-            tbody.innerHTML = '';
-            
-            // إضافة الأدمن الافتراضي يدوياً (للعرض فقط)
-            tbody.innerHTML += `
-                <tr>
-                    <td><span class="text-locked">لا يمكن حذفه</span></td>
-                    <td>مدير</td>
-                    <td>admin</td>
-                </tr>`;
-
-            Object.entries(data).forEach(([key, user]) => {
-                if(user.role !== 'customer') { // عرض الموظفين فقط
-                    let roleTxt = user.role === 'admin' ? 'مدير' : 'متلقي طلبات';
-                    let deleteBtn = `<button class="btn-red" onclick="window.delUser('${key}')">حذف</button>`;
-                    
-                    // حماية بعض الحسابات مثل Owner
-                    if(user.name.toLowerCase() === 'owner') {
-                        deleteBtn = '<span class="text-locked">لا يمكن حذفه</span>';
-                        roleTxt = 'مدير';
-                    }
-
-                    tbody.innerHTML += `
-                    <tr>
-                        <td>${deleteBtn}</td>
-                        <td>${roleTxt}</td>
-                        <td>${user.name}</td>
-                    </tr>`;
-                }
-            });
-        }
-        window.delUser = function(key) { if(confirm('حذف الموظف؟')) remove(ref(db, 'users/'+key)); }
-
-        // --- Orders ---
+        // --- Orders Logic ---
         function renderOrders(data) {
             const newDiv = document.getElementById('newOrdersList');
             const procDiv = document.getElementById('processingOrdersList');
             newDiv.innerHTML = ''; procDiv.innerHTML = '';
 
             Object.entries(data).forEach(([key, o]) => {
-                const card = `<div class="order-card ${o.cancelRequest?'cancel-requested':''}" onclick="openOrder('${key}')">
-                    ${o.cancelRequest ? '<span class="cancel-badge">طلب إلغاء!</span>' : ''}
-                    <h4>#${key.slice(-4)} - ${o.customerName||'عميل'}</h4>
-                    <div>${o.address||''}</div>
-                    <div>${o.total} ج</div>
-                </div>`;
+                const card = createOrderCard(key, o);
                 
-                if(o.status === 'pending' || o.status === 'new') {
-                    if(!o.seenByAdmin) { document.getElementById('alarmSound').play().catch(()=>{}); update(ref(db, 'orders/'+key), {seenByAdmin:true}); }
+                if(o.status === 'new' || o.status === 'pending') {
+                    if(!o.seenByAdmin) {
+                        document.getElementById('alarmSound').play().catch(()=>{});
+                        update(ref(db, 'orders/'+key), {seenByAdmin: true});
+                    }
                     newDiv.innerHTML += card;
-                } else if(o.status === 'processing') {
+                } 
+                else if(o.status === 'processing') {
                     procDiv.innerHTML += card;
                 }
             });
         }
 
+        function createOrderCard(key, o) {
+            let cancelClass = o.cancelRequest ? 'cancel-requested' : '';
+            let cancelBadge = o.cancelRequest ? '<span class="cancel-badge">طلب إلغاء!</span>' : '';
+            let itemsCount = o.cart ? o.cart.length : (o.items ? o.items.length : 0);
+            let customerName = o.customerName || o.name || 'عميل';
+
+            return `<div class="order-card ${cancelClass}" onclick="openOrder('${key}')">
+                ${cancelBadge}
+                <h4>#${key.slice(-4)} - ${customerName}</h4>
+                <div style="font-size:0.9rem; color:#555;">${o.address || 'غير محدد'}</div>
+                <div>${itemsCount} صنف | ${o.total} ج</div>
+            </div>`;
+        }
+
         window.openOrder = function(key) {
             const o = allOrders[key];
             if(!o) return;
-            let itemsHtml = (o.items||o.cart||[]).map(i => `<li>${i.name||i.item} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
+
+            let customerName = o.customerName || o.name;
+            let phone = o.phone || (o.customer ? o.customer.phone : '');
+            let itemsList = o.cart || o.items || [];
+            
+            let itemsHtml = itemsList.map(i => {
+                let name = i.name || i.item;
+                let variantTxt = i.variant ? `(${i.variant.bread} - ${i.variant.size})` : '';
+                let price = i.variant ? i.variant.price : i.price;
+                return `<li>${name} ${variantTxt} - ${price} ج</li>`;
+            }).join('');
+
             document.getElementById('modalBody').innerHTML = `
-                <p><strong>العميل:</strong> ${o.customerName} (${o.phone})</p>
+                <p><strong>العميل:</strong> ${customerName} (${phone})</p>
                 <p><strong>العنوان:</strong> ${o.address}</p>
                 <hr><ul>${itemsHtml}</ul>
                 <h3 style="color:var(--red)">الإجمالي: ${o.total} ج</h3>
             `;
-            
+
             const actions = document.getElementById('modalActions');
             const alertBox = document.getElementById('cancelAlert');
-            
+
             if(o.cancelRequest) {
                 alertBox.style.display = 'block';
-                document.getElementById('cancelReasonText').innerText = o.cancelReason;
-                actions.innerHTML = `<button class="btn-red" onclick="upStatus('${key}','cancelled')">موافقة</button><button class="btn-blue" onclick="rejCancel('${key}')">رفض</button>`;
+                document.getElementById('cancelReasonText').innerText = `سبب العميل: ${o.cancelReason || 'غير محدد'}`;
+                
+                actions.innerHTML = `
+                    <button class="btn-red" onclick="approveCancel('${key}', '${o.cancelReason}')">✔ موافقة على الإلغاء</button>
+                    <button class="btn-blue" onclick="rejectCancelReq('${key}')">✖ رفض الإلغاء (استكمال)</button>
+                `;
             } else {
                 alertBox.style.display = 'none';
-                if(o.status === 'pending' || o.status === 'new') {
-                    actions.innerHTML = `<button class="btn-blue" style="background:var(--green)" onclick="upStatus('${key}','processing')">قبول وتجهيز</button><button class="btn-red" onclick="upStatus('${key}','cancelled')">رفض</button>`;
+                if(o.status === 'new' || o.status === 'pending') {
+                    actions.innerHTML = `<button class="btn-green" onclick="updateStatus('${key}', 'processing')">قبول وتجهيز</button> <button class="btn-red" onclick="rejectOrderWithReason('${key}')">رفض الطلب</button>`;
                 } else if(o.status === 'processing') {
-                    actions.innerHTML = `<button class="btn-blue" onclick="upStatus('${key}','completed')">إنهاء</button>`;
+                    actions.innerHTML = `<button class="btn-blue" onclick="updateStatus('${key}', 'completed')">إنهاء ونقل للسجل</button>`;
                 }
             }
             document.getElementById('orderModal').style.display = 'block';
         }
 
-        window.upStatus = function(k,s) { update(ref(db,'orders/'+k), {status:s, cancelRequest:false}); document.getElementById('orderModal').style.display='none'; }
-        window.rejCancel = function(k) { update(ref(db,'orders/'+k), {cancelRequest:false}); document.getElementById('orderModal').style.display='none'; }
-
-        // --- Stats ---
-        function updateStats(data) {
-            let comp = Object.values(data).filter(o=>o.status==='completed');
-            let canc = Object.values(data).filter(o=>o.status==='cancelled');
-            let total = comp.reduce((s,o)=>s+(parseInt(o.total)||0),0);
-            document.getElementById('todaySales').innerText = total + ' ج';
-            document.getElementById('monthSales').innerText = total + ' ج';
-            document.getElementById('cancelledCount').innerText = canc.length;
-            
-            let hist = Object.values(data).filter(o=>o.status==='completed'||o.status==='cancelled');
-            document.getElementById('historyTableBody').innerHTML = hist.reverse().map(o=>`<tr><td>#</td><td>${new Date(o.timestamp).toLocaleTimeString('ar-EG')}</td><td>${o.customerName}</td><td>${o.total}</td><td>${o.status}</td><td>${o.rejectionReason||''}</td></tr>`).join('');
+        window.updateStatus = function(key, st) {
+            update(ref(db, 'orders/'+key), {
+                status: st,
+                cancelRequest: false,
+                handledBy: currentUser.name
+            });
+            document.getElementById('orderModal').style.display='none';
         }
 
-        // --- Products ---
-        document.getElementById('addVarBtn').addEventListener('click', () => {
-            let b=document.getElementById('vBread').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value;
-            if(p) { tempVariants.push({bread:b,size:s,price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerText += `${b}-${s} (${p}ج) | `; }
-        });
-        document.getElementById('saveProdBtn').addEventListener('click', () => {
-            let n=document.getElementById('prodName').value, i=document.getElementById('prodImg').value, c=document.getElementById('prodCatSelect').value;
-            if(n && tempVariants.length) { push(ref(db,'products'),{name:n,img:i,cat:c,variants:tempVariants,available:true}); alert('تم'); tempVariants=[]; document.getElementById('prodName').value=''; document.getElementById('tempVarsDisplay').innerText=''; }
-        });
-        document.getElementById('addCatBtn').addEventListener('click', () => {
-            let n=document.getElementById('catMain').value; if(n){ push(ref(db,'categories'),{name:n}); alert('تم'); }
-        });
-        function renderProdManage(data) {
-            document.getElementById('manageProdList').innerHTML = Object.entries(data).map(([k,p])=>`<tr><td>${p.name}</td><td>${p.available?'متاح':'متوقف'}</td><td><button class="btn-blue" onclick="window.togProd('${k}',${p.available})">تغيير</button><button class="btn-red" onclick="window.delProd('${k}')">حذف</button></td></tr>`).join('');
+        window.rejectOrderWithReason = function(key) {
+            const reason = prompt("يرجى كتابة سبب رفض الطلب (سيظهر للعميل):");
+            if(reason) {
+                update(ref(db, 'orders/'+key), {
+                    status: 'cancelled',
+                    rejectionReason: reason,
+                    handledBy: currentUser.name
+                });
+                document.getElementById('orderModal').style.display='none';
+            }
         }
-        window.togProd = function(k,c) { update(ref(db,'products/'+k),{available:!c}); }
-        window.delProd = function(k) { if(confirm('حذف؟')) remove(ref(db,'products/'+k)); }
 
-        // --- Chat ---
-        function renderChatList(data) {
-            document.getElementById('chatUsersList').innerHTML = Object.keys(data).map(k=>`<div onclick="window.loadChat('${k}')" style="padding:10px;border-bottom:1px solid #ddd;cursor:pointer;">${k}</div>`).join('');
-        }
-        window.loadChat = function(p) { activeChatUser=p; onValue(ref(db,'chats/'+p), (s)=>{ let m=s.val()||{}; document.getElementById('adminChatBox').innerHTML=Object.values(m).map(x=>`<div style="background:${x.sender==='admin'?'var(--blue)':'#ddd'};color:${x.sender==='admin'?'white':'black'};padding:8px;margin:5px;border-radius:5px;align-self:${x.sender==='admin'?'flex-end':'flex-start'};width:fit-content;">${x.text}</div>`).join(''); }); }
-        window.sendAdminMsg = function() {
-            let t=document.getElementById('adminChatInput').value; if(t&&activeChatUser) { push(ref(db,'chats/'+activeChatUser),{sender:'admin',text:t}); document.getElementById('adminChatInput').value=''; }
-        }
-    </script>
-</body>
-</html>
+        window.approveCancel = function(key, reason) {
+            if(confirm('موافقة على الإلغاء؟')) {
+                update(ref(db, 'orders/'+key), {
+                    status: 'cancelled',
+                    rejectionReason: `إلغاء من العميل: ${reason}`,
+                    handledBy:
