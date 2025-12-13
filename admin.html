@@ -88,10 +88,12 @@
         <div class="menu-item active" onclick="nav('live-orders')"><i class="fas fa-bell"></i> الطلبات الحية</div>
         <div class="menu-item" onclick="nav('dashboard')"><i class="fas fa-chart-line"></i> السجل والإحصائيات</div>
         
+        <!-- تم نقل إدارة المنتجات هنا لتظهر للمتلقي أيضاً -->
+        <div class="menu-item" onclick="nav('manage-products')"><i class="fas fa-boxes"></i> إدارة المنتجات</div>
+        
         <div class="admin-only">
             <div class="menu-item" onclick="nav('reports')"><i class="fas fa-file-invoice-dollar"></i> التقارير</div>
-            <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج/عرض</div>
-            <div class="menu-item" onclick="nav('manage-products')"><i class="fas fa-boxes"></i> إدارة المنتجات</div>
+            <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج جديد</div>
             <div class="menu-item" onclick="nav('users')"><i class="fas fa-users-cog"></i> الموظفين</div>
         </div>
 
@@ -258,7 +260,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- NEW: Load user from Storage immediately ---
+        // --- Load user from Storage immediately ---
         let currentUser = JSON.parse(localStorage.getItem('nagaf_staff_user'));
         let activeChatUser = null;
         let tempVariants = [];
@@ -267,7 +269,6 @@
         let chatsLoaded = false;
         let editingUserKey = null;
 
-        // If user exists in storage, skip login
         if(currentUser) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminNameDisplay').innerText = currentUser.name;
@@ -294,7 +295,6 @@
                 
                 if(found) {
                     currentUser = found;
-                    // --- NEW: Save to Storage ---
                     localStorage.setItem('nagaf_staff_user', JSON.stringify(found));
 
                     document.getElementById('loginScreen').style.display = 'none';
@@ -311,7 +311,7 @@
             }, {onlyOnce: true});
         });
 
-        // --- NEW: Logout Function ---
+        // Logout
         window.logoutStaff = function() {
             localStorage.removeItem('nagaf_staff_user');
             location.reload();
