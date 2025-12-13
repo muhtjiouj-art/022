@@ -81,12 +81,13 @@
             <i class="fas fa-user-shield"></i> <span id="adminNameDisplay"></span>
         </h2>
         
+        <!-- متاح للكل (أدمن ومتلقي) -->
         <div class="menu-item active" onclick="nav('live-orders')"><i class="fas fa-bell"></i> الطلبات الحية</div>
+        <div class="menu-item" onclick="nav('dashboard')"><i class="fas fa-chart-line"></i> السجل والإحصائيات</div>
         
-        <!-- عناصر خاصة بالأدمن فقط (سيتم إخفاؤها للمتلقي) -->
+        <!-- عناصر خاصة بالأدمن فقط -->
         <div class="admin-only">
-            <div class="menu-item" onclick="nav('dashboard')"><i class="fas fa-chart-line"></i> الإحصائيات</div>
-            <div class="menu-item" onclick="nav('reports')"><i class="fas fa-file-invoice-dollar"></i> التقارير</div>
+            <div class="menu-item" onclick="nav('reports')"><i class="fas fa-file-invoice-dollar"></i> تقارير الموظفين</div>
             <div class="menu-item" onclick="nav('products')"><i class="fas fa-plus-circle"></i> إضافة منتج</div>
             <div class="menu-item" onclick="nav('manage-products')"><i class="fas fa-boxes"></i> إدارة المنتجات</div>
             <div class="menu-item" onclick="nav('users')"><i class="fas fa-users-cog"></i> الموظفين</div>
@@ -115,7 +116,36 @@
             </div>
         </div>
 
-        <!-- 2. إدارة الموظفين -->
+        <!-- 2. الإحصائيات (متغير حسب الشخص) -->
+        <div id="dashboard" class="section">
+            <h3 id="dashTitle">سجل الطلبات</h3>
+            <div class="dash-container">
+                <div class="dash-card"><div>شغلك اليوم</div><div id="todaySales" class="stat-val">0 ج</div></div>
+                <div class="dash-card"><div>إجمالي الشهر</div><div id="monthSales" class="stat-val">0 ج</div></div>
+                <div class="dash-card"><div>عدد الأوردرات</div><div id="cancelledCount" class="stat-val" style="color:var(--blue);">0</div></div>
+            </div>
+            
+            <table class="users-table">
+                <thead><tr><th>#</th><th>الوقت</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>الموظف المستلم</th></tr></thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 3. التقارير (أدمن فقط) -->
+        <div id="reports" class="section">
+            <div class="form-box">
+                <h3>تقارير أداء الموظفين</h3>
+                <input type="month" id="reportMonthInput">
+                <button class="btn-blue" onclick="generateReport()">عرض التقرير</button>
+                <button class="btn-blue" style="background:var(--green)" onclick="window.print()">طباعة</button>
+            </div>
+            <div id="reportResult" style="background:white; padding:20px; margin-top:20px; display:none;">
+                <h3 style="text-align:center;">تقرير شهر <span id="repMonthName"></span></h3>
+                <table class="users-table"><thead><tr><th>الموظف</th><th>عدد الطلبات (المكتملة)</th><th>إجمالي المبيعات</th></tr></thead><tbody id="reportTableBody"></tbody></table>
+            </div>
+        </div>
+
+        <!-- 4. إدارة الموظفين -->
         <div id="users" class="section">
             <div class="form-box">
                 <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">إضافة موظف جديد</h3>
@@ -125,8 +155,8 @@
                 <input type="password" id="newUPass">
                 <label>الصلاحية</label>
                 <select id="newURole">
-                    <option value="admin">مدير (Admin)</option>
                     <option value="receiver">متلقي طلبات</option>
+                    <option value="admin">مدير (Admin)</option>
                 </select>
                 <button class="btn-blue" id="addUserBtn">إضافة موظف</button>
             </div>
@@ -134,31 +164,6 @@
                 <thead><tr><th>حذف</th><th>الصلاحية</th><th>الاسم</th></tr></thead>
                 <tbody id="usersListBody"></tbody>
             </table>
-        </div>
-
-        <!-- 3. الإحصائيات -->
-        <div id="dashboard" class="section">
-            <div class="dash-container">
-                <div class="dash-card"><div>مبيعات اليوم</div><div id="todaySales" class="stat-val">0 ج</div></div>
-                <div class="dash-card"><div>مبيعات الشهر</div><div id="monthSales" class="stat-val">0 ج</div></div>
-                <div class="dash-card"><div>طلبات ملغاة</div><div id="cancelledCount" class="stat-val" style="color:var(--red);">0</div></div>
-            </div>
-            <h3>سجل الطلبات</h3>
-            <table class="users-table"><thead><tr><th>#</th><th>الوقت</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        </div>
-
-        <!-- 4. التقارير -->
-        <div id="reports" class="section">
-            <div class="form-box">
-                <h3>استخراج التقارير</h3>
-                <input type="month" id="reportMonthInput">
-                <button class="btn-blue" onclick="generateReport()">عرض التقرير</button>
-                <button class="btn-blue" style="background:var(--green)" onclick="window.print()">طباعة</button>
-            </div>
-            <div id="reportResult" style="background:white; padding:20px; margin-top:20px; display:none;">
-                <h3 style="text-align:center;">تقرير شهر <span id="repMonthName"></span></h3>
-                <table class="users-table"><thead><tr><th>الموظف</th><th>عدد الطلبات</th><th>إجمالي المبيعات</th></tr></thead><tbody></tbody></table>
-            </div>
         </div>
 
         <!-- 5. المنتجات -->
@@ -218,6 +223,7 @@
         </div>
     </div>
 
+    <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -244,7 +250,7 @@
         let allOrders = {};
 
         // -------------------------
-        //  تسجيل الدخول (Login Logic)
+        //  تسجيل الدخول (Login)
         // -------------------------
         document.getElementById('loginBtn').addEventListener('click', () => {
             const u = document.getElementById('username').value.trim();
@@ -252,20 +258,14 @@
             
             if(!u || !p) { alert("أدخل البيانات"); return; }
 
-            // تحقق من قاعدة البيانات
             onValue(ref(db, 'users'), (snap) => {
                 const users = snap.val() || {};
                 let found = null;
 
-                // 1. تحقق من الأدمن الافتراضي (للطوارئ)
-                if(u === 'admin' && p === '123') {
-                    found = {name: 'Admin', role: 'admin'};
-                }
-
-                // 2. تحقق من الموظفين المسجلين
+                if(u === 'admin' && p === '123') found = {name: 'Admin', role: 'admin'};
+                
                 if(!found) {
                     Object.values(users).forEach(user => {
-                        // مقارنة الاسم وكلمة السر (بدون مسافات زائدة)
                         if(user.name.trim() === u && user.pass.trim() === p) {
                             found = user;
                         }
@@ -277,11 +277,13 @@
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('adminNameDisplay').innerText = found.name;
                     
-                    // تطبيق الصلاحيات (إخفاء القوائم للمتلقي)
+                    // إخفاء القوائم عن المتلقي
                     if(found.role === 'receiver') {
                         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                        document.getElementById('dashTitle').innerText = "سجل عملك اليومي";
                     } else {
                         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                        document.getElementById('dashTitle').innerText = "سجل كل الطلبات (إدارة)";
                     }
 
                     startSystem();
@@ -299,7 +301,7 @@
 
         // --- تشغيل النظام ---
         function startSystem() {
-            // الطلبات
+            // الطلبات (أهم جزء)
             onValue(ref(db, 'orders'), (snapshot) => {
                 const data = snapshot.val() || {};
                 allOrders = data;
@@ -318,7 +320,7 @@
         }
 
         // -------------------------
-        //  إدارة الموظفين (Users)
+        //  إدارة الموظفين
         // -------------------------
         document.getElementById('addUserBtn').addEventListener('click', () => {
             let u = document.getElementById('newUName').value;
@@ -328,21 +330,17 @@
                 push(ref(db, 'users'), {name:u, pass:p, role:r});
                 document.getElementById('newUName').value=''; 
                 document.getElementById('newUPass').value='';
-                alert('تم إضافة الموظف: ' + u);
-            } else {
-                alert('أدخل الاسم وكلمة المرور');
+                alert('تم إضافة الموظف');
             }
         });
 
         function renderUsers(data) {
             const tbody = document.getElementById('usersListBody');
             tbody.innerHTML = '';
-            
-            // الأدمن الافتراضي
             tbody.innerHTML += `<tr><td><span class="text-locked">لا يمكن حذفه</span></td><td>مدير عام</td><td>Admin</td></tr>`;
 
             Object.entries(data).forEach(([key, user]) => {
-                if(user.role !== 'customer') { // عرض الموظفين فقط
+                if(user.role !== 'customer') { 
                     let roleTxt = user.role === 'admin' ? 'مدير' : 'متلقي طلبات';
                     tbody.innerHTML += `
                     <tr>
@@ -356,7 +354,7 @@
         window.delUser = function(key) { if(confirm('حذف الموظف؟')) remove(ref(db, 'users/'+key)); }
 
         // -------------------------
-        //  الطلبات (Orders)
+        //  الطلبات
         // -------------------------
         function renderOrders(data) {
             const newDiv = document.getElementById('newOrdersList');
@@ -394,6 +392,7 @@
             const actions = document.getElementById('modalActions');
             const alertBox = document.getElementById('cancelAlert');
             
+            // إلغاء من العميل
             if(o.cancelRequest) {
                 alertBox.style.display = 'block';
                 document.getElementById('cancelReasonText').innerText = o.cancelReason;
@@ -409,54 +408,79 @@
             document.getElementById('orderModal').style.display = 'block';
         }
 
+        // تحديث الحالة وحفظ اسم الموظف
         window.upStatus = function(k,s) { 
             update(ref(db,'orders/'+k), {
                 status:s, 
                 cancelRequest:false,
-                handledBy: currentUser.name // تسجيل مين اللي قبل الطلب
+                handledBy: currentUser.name  // هام جداً للتقارير
             }); 
             document.getElementById('orderModal').style.display='none'; 
         }
         window.rejCancel = function(k) { update(ref(db,'orders/'+k), {cancelRequest:false}); document.getElementById('orderModal').style.display='none'; }
 
-        // --- الإحصائيات ---
+        // -------------------------
+        //  الإحصائيات والسجلات (معدلة)
+        // -------------------------
         function updateStats(data) {
-            let comp = Object.values(data).filter(o=>o.status==='completed');
-            let canc = Object.values(data).filter(o=>o.status==='cancelled');
+            let relevantOrders = Object.values(data);
+
+            // لو متلقي طلبات -> يرى فقط طلباته التي قبلها
+            if (currentUser.role === 'receiver') {
+                relevantOrders = relevantOrders.filter(o => o.handledBy === currentUser.name);
+            }
+
+            let comp = relevantOrders.filter(o=>o.status==='completed');
+            let canc = relevantOrders.filter(o=>o.status==='cancelled');
             let total = comp.reduce((s,o)=>s+(parseInt(o.total)||0),0);
-            document.getElementById('todaySales').innerText = total + ' ج';
-            document.getElementById('monthSales').innerText = total + ' ج';
-            document.getElementById('cancelledCount').innerText = canc.length;
             
-            let hist = Object.values(data).filter(o=>o.status==='completed'||o.status==='cancelled');
-            document.getElementById('historyTableBody').innerHTML = hist.reverse().map(o=>`
+            document.getElementById('todaySales').innerText = total + ' ج'; // تبسيطاً اليوم
+            document.getElementById('monthSales').innerText = total + ' ج';
+            document.getElementById('cancelledCount').innerText = relevantOrders.length; // عدد الأوردرات الكلي
+            
+            // جدول السجل
+            document.getElementById('historyTableBody').innerHTML = relevantOrders.reverse().map(o=>`
                 <tr>
                     <td>#</td>
                     <td>${new Date(o.timestamp).toLocaleTimeString('ar-EG')}</td>
                     <td>${o.customerName}</td>
                     <td>${o.total} ج</td>
-                    <td style="color:${o.status==='completed'?'green':'red'}">${o.status==='completed'?'مكتمل':'ملغي'}</td>
-                    <td>${o.handledBy ? 'بواسطة: '+o.handledBy : ''}</td>
+                    <td style="color:${o.status==='completed'?'green':'red'}">${o.status==='completed'?'مكتمل':(o.status==='cancelled'?'ملغي':'جاري')}</td>
+                    <td>${o.handledBy || '-'}</td>
                 </tr>`).join('');
         }
 
-        // --- التقارير ---
+        // -------------------------
+        //  التقارير (للأدمن فقط)
+        // -------------------------
         window.generateReport = function() {
             const m = document.getElementById('reportMonthInput').value;
             if(!m) return alert('اختر الشهر');
-            const filtered = Object.values(allOrders).filter(o => o.status === 'completed' && new Date(o.timestamp).toISOString().slice(0,7) === m);
+            
+            // فلترة الطلبات المكتملة في الشهر المحدد
+            const filtered = Object.values(allOrders).filter(o => 
+                o.status === 'completed' && 
+                new Date(o.timestamp).toISOString().slice(0,7) === m
+            );
+            
+            // تجميع البيانات حسب الموظف
             let stats = {};
             filtered.forEach(o => {
                 let emp = o.handledBy || 'غير محدد';
                 if(!stats[emp]) stats[emp] = {count:0, total:0};
-                stats[emp].count++; stats[emp].total += parseInt(o.total || 0);
+                stats[emp].count++; 
+                stats[emp].total += parseInt(o.total || 0);
             });
+
             document.getElementById('repMonthName').innerText = m;
-            document.querySelector('#reportResult tbody').innerHTML = Object.keys(stats).map(k => `<tr><td>${k}</td><td>${stats[k].count}</td><td>${stats[k].total} ج</td></tr>`).join('');
+            document.querySelector('#reportTableBody').innerHTML = Object.keys(stats).map(k => 
+                `<tr><td>${k}</td><td>${stats[k].count}</td><td>${stats[k].total} ج</td></tr>`
+            ).join('');
+            
             document.getElementById('reportResult').style.display = 'block';
         }
 
-        // --- المنتجات ---
+        // --- المنتجات (باقي الكود كما هو) ---
         document.getElementById('addVarBtn').addEventListener('click', () => {
             let b=document.getElementById('vBread').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value;
             if(p) { tempVariants.push({bread:b,size:s,price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerText += `${b}-${s} (${p}ج) | `; }
