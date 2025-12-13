@@ -61,11 +61,22 @@
         .variant-tag { background: #e3f2fd; padding: 5px 10px; border-radius: 5px; margin: 2px; display: inline-block; border: 1px solid var(--blue); font-size: 0.9rem; }
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background-color: #f1f1f1; }
+
+        /* Cancel Reason Box Style */
+        .reason-box {
+            background: #ffebee;
+            color: #b71c1c;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ffcdd2;
+        }
     </style>
 </head>
 <body>
 
-    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
+    <!-- تمت إضافة loop ليعمل الصوت بشكل متكرر -->
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" loop></audio>
     <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
 
     <div id="loginScreen">
@@ -149,7 +160,7 @@
             </div>
         </div>
 
-        <!-- 4. Products (Same) -->
+        <!-- 4. Products -->
         <div id="products" class="section">
             <div class="form-box">
                 <h3>إضافة منتج/عرض</h3>
@@ -285,6 +296,10 @@
         function renderOrders(data) {
             const n = document.getElementById('newOrdersList'), p = document.getElementById('processingOrdersList');
             n.innerHTML = ''; p.innerHTML = '';
+            
+            // متغير للتحقق اذا كان هناك طلب جديد
+            let hasNewOrder = false;
+
             Object.entries(data).forEach(([k,o]) => {
                 const c = `<div class="order-card ${o.cancelRequest?'cancel-requested':''}" onclick="openOrder('${k}')">
                     ${o.cancelRequest ? '<span class="cancel-badge">طلب إلغاء!</span>' : ''}
@@ -294,10 +309,17 @@
                     <div>${o.total} ج</div>
                 </div>`;
                 if(o.status === 'pending' || o.status === 'new') {
-                    if(!o.seenByAdmin) { document.getElementById('alarmSound').play().catch(()=>{}); update(ref(db,'orders/'+k),{seenByAdmin:true}); }
                     n.innerHTML += c;
+                    if(!o.seenByAdmin) { hasNewOrder = true; update(ref(db,'orders/'+k),{seenByAdmin:true}); }
                 } else if(o.status === 'processing') p.innerHTML += c;
             });
+
+            // تشغيل الصوت بشكل مستمر عند وجود طلب جديد لم يُشاهد
+            const alarm = document.getElementById('alarmSound');
+            if(hasNewOrder) {
+                alarm.currentTime = 0;
+                alarm.play().catch(()=>{});
+            }
         }
 
         window.filterHistory = function() {
@@ -306,9 +328,22 @@
         }
 
         window.openOrder = function(k) {
+            // إيقاف الصوت عند فتح الأوردر
+            const alarm = document.getElementById('alarmSound');
+            alarm.pause();
+            alarm.currentTime = 0;
+
             const o = allOrders[k]; if(!o) return;
             const items = (o.items||o.cart||[]).map(i=>`<li>${i.name} ${i.variant?`(${i.variant.bread} ${i.variant.size!='موحد'?'- '+i.variant.size:''})`:''} - ${i.variant?i.variant.price:i.price} ج</li>`).join('');
-            document.getElementById('modalBody').innerHTML = `<p><strong>${o.customerName}</strong> (${o.phone})</p><p>${o.address}</p><hr><ul>${items}</ul><h3 style="color:var(--red)">${o.total} ج</h3>`;
+            
+            let extraInfo = '';
+            // عرض سبب الإلغاء في المودال اذا كان الطلب ملغي
+            if(o.status === 'cancelled') {
+                if(o.adminReason) extraInfo = `<div class="reason-box"><strong>تم الإلغاء/الرفض بواسطة الإدارة:</strong><br>${o.adminReason}</div>`;
+                else if(o.cancelReason) extraInfo = `<div class="reason-box"><strong>تم الإلغاء بطلب من العميل:</strong><br>${o.cancelReason}</div>`;
+            }
+
+            document.getElementById('modalBody').innerHTML = `<p><strong>${o.customerName}</strong> (${o.phone})</p><p>${o.address}</p><hr><ul>${items}</ul>${extraInfo}<h3 style="color:var(--red)">${o.total} ج</h3>`;
             
             const act = document.getElementById('modalActions');
             const alertBox = document.getElementById('cancelAlert');
@@ -329,8 +364,9 @@
         window.upStatus = (k,s) => { update(ref(db,'orders/'+k), {status:s, handledBy:currentUser.name}); document.getElementById('orderModal').style.display='none'; }
         
         window.rejectOrder = function(k) {
-            let reason = prompt("يرجى كتابة سبب الرفض/الإلغاء للعميل:");
+            let reason = prompt("يرجى كتابة سبب الرفض/الإلغاء (سيظهر للعميل وفي السجل):");
             if(reason) {
+                // حفظ السبب في adminReason ليظهر للأدمن لاحقاً وللعميل
                 update(ref(db,'orders/'+k), { status: 'cancelled', adminReason: reason, cancelRequest: false, handledBy:currentUser.name });
                 document.getElementById('orderModal').style.display = 'none';
             }
@@ -362,15 +398,14 @@
                 </tr>`).join('');
         }
 
-        // --- Chat Logic with Sound & Alerts ---
+        // --- Chat Logic ---
         function handleChatUpdate(chats) {
             renderChatList(chats);
             if(chatsLoaded) {
-                // Check for new messages from customers
                 let hasNew = false;
                 Object.values(chats).forEach(msgs => {
                     const lastMsg = Object.values(msgs).pop();
-                    if(lastMsg && lastMsg.sender === 'customer' && Date.now() - lastMsg.timestamp < 10000) { // New message in last 10 sec
+                    if(lastMsg && lastMsg.sender === 'customer' && Date.now() - lastMsg.timestamp < 10000) {
                         hasNew = true;
                     }
                 });
@@ -395,7 +430,7 @@
         window.loadChat = (p) => { activeChatUser = p; onValue(ref(db,'chats/'+p), s => { document.getElementById('adminChatBox').innerHTML = Object.values(s.val()||{}).map(m=>`<div style="background:${m.sender==='admin'?'var(--blue)':'#ddd'};color:${m.sender==='admin'?'white':'black'};padding:8px;margin:5px;width:fit-content;border-radius:5px;align-self:${m.sender==='admin'?'flex-end':'flex-start'}">${m.text}</div>`).join(''); }); }
         window.sendAdminMsg = () => { let t=document.getElementById('adminChatInput').value; if(t&&activeChatUser){ push(ref(db,'chats/'+activeChatUser),{sender:'admin',text:t, timestamp:Date.now()}); document.getElementById('adminChatInput').value=''; } };
 
-        // --- Products & Users (Helper Functions) ---
+        // --- Products & Users ---
         document.getElementById('addVarBtn').addEventListener('click', () => {
             let b=document.getElementById('vType').value, s=document.getElementById('vSize').value, p=document.getElementById('vPrice').value;
             if(b && p) { tempVariants.push({bread:b,size:s||'موحد',price:parseInt(p)}); document.getElementById('tempVarsDisplay').innerHTML += `<span class="variant-tag">${b} (${s||'موحد'}) : ${p}ج</span>`; document.getElementById('vType').value=''; document.getElementById('vSize').value=''; document.getElementById('vPrice').value=''; }
