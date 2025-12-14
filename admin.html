@@ -15,7 +15,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #ffffff;
-            z-index: 9999; /* أعلى طبقة */
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -99,9 +99,7 @@
     <!-- START: شاشة التحميل -->
     <div id="loader-wrapper">
         <div class="loader-container">
-            <!-- الحلقة الدائرة بالأزرق والأحمر -->
             <div class="loader-ring"></div>
-            <!-- اللوجو في المنتصف -->
             <img src="logo.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1996/1996068.png'" class="loader-logo-img" alt="Nagaf Logo">
         </div>
         <div class="loader-text">N A G A F</div>
@@ -227,6 +225,15 @@
                 <input type="text" id="catMain" placeholder="اسم التصنيف">
                 <button class="btn-blue" id="addCatBtn">إضافة</button>
             </div>
+            
+            <!-- NEW: إدارة التصنيفات (حذف) -->
+            <div class="form-box" style="border-top: 4px solid var(--red);">
+                <h3>إدارة التصنيفات (حذف)</h3>
+                <table class="users-table">
+                    <thead><tr><th>التصنيف</th><th>إجراء</th></tr></thead>
+                    <tbody id="categoriesManageList"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="manage-products" class="section">
@@ -295,7 +302,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // إعدادات الفايربيس (كما هي)
+        // إعدادات الفايربيس
         const firebaseConfig = { apiKey: "AIzaSyAaf3l8VFttOCruK9jZczBsi1eBwg2U5yE", authDomain: "nagaf-f9b1c.firebaseapp.com", projectId: "nagaf-f9b1c", databaseURL: "https://nagaf-f9b1c-default-rtdb.firebaseio.com", storageBucket: "nagaf-f9b1c.appspot.com", messagingSenderId: "840123927886", appId: "1:840123927886:web:c6baad7f059cfab461e21f" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -303,7 +310,6 @@
         // --- Loader Logic ---
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader-wrapper');
-            // الانتظار 2 ثانية لرؤية الانيميشن ثم الإخفاء
             setTimeout(() => {
                 loader.classList.add('hide-loader');
                 setTimeout(() => {
@@ -390,7 +396,14 @@
                 renderUsers(allUsersData);
             });
             onValue(ref(db, 'products'), (s) => renderProdManage(s.val() || {}));
-            onValue(ref(db, 'categories'), (s) => populateCats(s.val() || {}));
+            
+            // تحديث: جلب التصنيفات وتعبئة القائمة + جدول الحذف
+            onValue(ref(db, 'categories'), (s) => {
+                const cats = s.val() || {};
+                populateCats(cats);
+                renderCategoriesManager(cats);
+            });
+
             onValue(ref(db, 'chats'), (s) => handleChatUpdate(s.val() || {}));
         }
 
@@ -601,6 +614,27 @@
                 });
             } else {
                 alert("يرجى ملء جميع الحقول");
+            }
+        }
+
+        // --- Category Management (NEW) ---
+        function renderCategoriesManager(data) {
+            const tbody = document.getElementById('categoriesManageList');
+            tbody.innerHTML = '';
+            Object.entries(data).forEach(([key, cat]) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${cat.name}</td>
+                        <td>
+                            <button class="btn-red" onclick="window.delCat('${key}')">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        window.delCat = function(key) {
+            if(confirm('هل أنت متأكد من حذف هذا التصنيف؟')) {
+                remove(ref(db, 'categories/' + key));
             }
         }
 
